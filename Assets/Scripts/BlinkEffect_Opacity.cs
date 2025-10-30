@@ -6,40 +6,51 @@
  * Date Edited:
  * */
 
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class BlinkEffect_Opacity : MonoBehaviour
 {
+      
+    public bool correctInput = false;
+    public float fadeDuration = 1.5f;
+    public float _imageAlpha = 1.0f;
+    public float alphaMin = 0f;
+    public Image _image;
 
-    SpriteRenderer spriteRenderer;
-    //bool correctInput = false;
-    float fadeDuration = 1.5f;
 
     // Start is called before the first frame update
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
         //correctInput = false;
         StartCoroutine(FadeInOut());
     }
+    
 
     // Update is called once per frame
     void Update()
     {
-       
+        //Color currentColor = _image.color;
+        //_image.color = new Color(currentColor.r, currentColor.g, currentColor.b, Mathf.Clamp(_imageAlpha, 0f, 1f));
     }
-
+    
+    
     private IEnumerator FadeInOut()
     {
-        yield return StartCoroutine(Fade(0f, fadeDuration));
-        yield return StartCoroutine(Fade(1f, fadeDuration));
+        while (!correctInput)
+        {
+            yield return StartCoroutine(Fade(alphaMin, fadeDuration));
+            yield return StartCoroutine(Fade(1f, fadeDuration));
+        }
     }
 
     private IEnumerator Fade(float targetAlpha, float duration)
     {
-        Color color = spriteRenderer.color;
+        Color color = _image.color;
         float startAlpha = color.a;
         float time = 0;
 
@@ -47,10 +58,10 @@ public class BlinkEffect_Opacity : MonoBehaviour
         {
             time += Time.deltaTime;
             color.a = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
-            spriteRenderer.color = color;
+            _image.color = color;
             yield return null;
         }
         color.a = targetAlpha;
-        spriteRenderer.color = color;
+        _image.color = color;
     }
 }
