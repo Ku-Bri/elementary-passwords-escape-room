@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class CodeCheck : MonoBehaviour
 {
@@ -11,7 +12,13 @@ public class CodeCheck : MonoBehaviour
     //private int intCode = 0;
     public TMP_InputField inputField;
     public GameObject incorrectUI;
+    public GameObject unlockPanel;
+    public float timeToWait;
 
+    void Awake()
+    {
+        unlockPanel.SetActive(false);
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -38,17 +45,18 @@ public class CodeCheck : MonoBehaviour
 
     void TryContinue(string strCode = "Def")
     {
-        Debug.Log(levelNameToCheck);
-        Debug.Log(strCode);
+
         switch (levelNameToCheck)
         {
             
-            case "SC_Room1":
+            case "WordSearch":
                 Debug.Log(levelNameToCheck);
                 Debug.Log(strCode);
                 if (strCode.Equals("624"))
                 {
-                    LoadNextScene();
+                    unlockPanel.SetActive(true);
+                    Invoke("LoadNextScene", timeToWait);
+                    //LoadNextScene();
                     return;
                 }
                 Debug.LogWarning("Incorrect code, can't advance to the next screen");
@@ -117,4 +125,5 @@ public class CodeCheck : MonoBehaviour
             Debug.LogError("Can't go back any more, We're already on the first scene");
         }
     }
+
 }
