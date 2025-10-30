@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 public class CodeCheck : MonoBehaviour
 {
     public string levelNameToCheck;
-    private int intCode = 0;
+    //private int intCode = 0;
     public TMP_InputField inputField;
     public GameObject incorrectUI;
 
@@ -38,10 +38,12 @@ public class CodeCheck : MonoBehaviour
 
     void TryContinue(string strCode = "Def")
     {
+        Debug.Log(levelNameToCheck);
+        Debug.Log(strCode);
         switch (levelNameToCheck)
         {
             
-            case "WordSearch":
+            case "SC_Room1":
                 Debug.Log(levelNameToCheck);
                 Debug.Log(strCode);
                 if (strCode.Equals("624"))
