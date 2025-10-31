@@ -1033,7 +1033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   correctInput: 0
-  fadeDuration: 1.5
+  fadeDuration: 1.25
   _imageAlpha: 0
   alphaMin: 0.23
   _image: {fileID: 841289938}

@@ -960,7 +960,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   correctInput: 0
-  fadeDuration: 1.5
+  fadeDuration: 0.75
   _imageAlpha: 0
   alphaMin: 0.23
   _image: {fileID: 851016855}
