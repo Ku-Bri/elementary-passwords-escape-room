@@ -65,7 +65,9 @@ public class CodeCheck : MonoBehaviour
             case "HiddenText":
                 if (strCode.Equals("PROFILES"))
                 {
-                    LoadNextScene();
+                    unlockPanel.SetActive(true);
+                    Invoke("LoadNextScene", timeToWait);
+                    //LoadNextScene();
                     return;
                 }
                 Debug.LogWarning("Incorrect code, can't advance to the next screen");
@@ -74,7 +76,9 @@ public class CodeCheck : MonoBehaviour
             case "TestYourKnowledge":
                 if (strCode.Equals("3456"))
                 {
-                    LoadNextScene();
+                    unlockPanel.SetActive(true);
+                    Invoke("LoadNextScene", timeToWait); 
+                    //LoadNextScene();
                     return;
                 }
                 Debug.LogWarning("Incorrect code, can't advance to the next screen");
@@ -83,7 +87,9 @@ public class CodeCheck : MonoBehaviour
             case "Directional Lock":
                 if (strCode.Equals("UURRD"))
                 {
-                    LoadNextScene();
+                    unlockPanel.SetActive(true);
+                    Invoke("LoadNextScene", timeToWait);
+                    //LoadNextScene();
                     return;
                 }
                 Debug.LogWarning("Incorrect code, can't advance to the next screen");
