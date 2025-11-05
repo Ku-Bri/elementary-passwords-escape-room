@@ -9,8 +9,10 @@ public class OpenHintsEtc : MonoBehaviour
 
     private void Awake()
     {
-        //isPanelActive = true;
-        //panel1.SetActive(isPanelActive);
+        if (isPanelActive)
+        {
+            panel1.SetActive(isPanelActive);
+        }
     }
     public void ShowPanel()
     {
