@@ -12,13 +12,18 @@ public class TextStrikeThrough : MonoBehaviour
     private void Awake()
     {
         strikeThrough = false;
-        line = transform.GetChild(1).GetComponent<Image>();
-       line.enabled = strikeThrough;
+        line = transform.GetChild(0).GetComponent<Image>();
+        line.enabled = false;
     }
     public void OnStrikeThrough()
     {
         line.enabled =!strikeThrough;
         strikeThrough = !strikeThrough;
+    }
+
+    public void LineEnabled()
+    {
+        line.enabled = true;
     }
 
 }
