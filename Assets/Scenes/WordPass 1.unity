@@ -809,10 +809,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Generic - IncorrectUI Variant
       objectReference: {fileID: 0}
-    - target: {fileID: 9040586455060062811, guid: 33f57c3badeafdd44ac1059a15ef40c7, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
