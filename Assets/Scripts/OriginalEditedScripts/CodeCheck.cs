@@ -63,7 +63,7 @@ public class CodeCheck : MonoBehaviour
                 Incorrect();
                 return;
             case "HiddenText":
-                if (strCode.Equals("PROFILES"))
+                if (strCode.ToUpper().Equals("PROFILES"))
                 {
                     unlockPanel.SetActive(true);
                     Invoke("LoadNextScene", timeToWait);
@@ -85,7 +85,7 @@ public class CodeCheck : MonoBehaviour
                 Incorrect();
                 return;
             case "Directional Lock":
-                if (strCode.Equals("UURRD"))
+                if (strCode.ToUpper().Equals("UURRD"))
                 {
                     unlockPanel.SetActive(true);
                     Invoke("LoadNextScene", timeToWait);
