@@ -13188,16 +13188,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'After you find all of the words on the list, the code is revealed in the
-    leftover letters. Start reading the leftover letters in the top left corner and
-    continue to the right like a book.
-
-
-    The code is THREE NUMBERS so look for
-    number words.
-
-
-    To close the hint, click on the HINT Button. '
+  m_text: "The ESCAPE CODE is revealed as you cross words off the list. \n\nStart
+    reading the leftover letters in the top left corner and continue to the right
+    like a book.\n\nThe code is THREE NUMBERS so look for number words.\n\nTo close
+    the hint, click on the HINT Button. "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
   m_sharedMaterial: {fileID: -5392112696986978032, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
@@ -13224,7 +13218,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40.45
+  m_fontSize: 39.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -34511,11 +34505,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Mission: Solve the word puzzle to escape the room. \n\nTo cross out a
-    word on the crossword, click and drag the purple lines to cover the words. Each
-    line is set for the length and angle of a different word. \n\nWord List: Click
-    on a word to cross it out.\n\nTo close the instructions, click on the INSTRUCTIONS
-    Button. "
+  m_text: "Mission: Solve the word puzzle to escape the room. \n\nClick on letters
+    to select them. \n\nWhen you select all the letters of a word from the list,
+    the word will turn green and be crossed off the list. \n\n\nTo close the instructions,
+    click on the INSTRUCTIONS Button. "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
   m_sharedMaterial: {fileID: -5392112696986978032, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
@@ -34542,7 +34535,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35.2
+  m_fontSize: 37.95
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
