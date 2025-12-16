@@ -9,6 +9,7 @@ public class PanelOperator : MonoBehaviour
 {
     public GameObject[] panelArray;
     public bool[] isPanelActiveArray;
+    public GameObject sceneObjects;
 
     private void Awake()
     {
@@ -16,6 +17,7 @@ public class PanelOperator : MonoBehaviour
         {
             panelArray[0].SetActive(isPanelActiveArray[0]);
         }
+        sceneObjects.SetActive(false);
     }
     public void ShowPanel(int i)
     {
@@ -43,11 +45,23 @@ public class PanelOperator : MonoBehaviour
         isPanelActiveArray[i] = true;
         panelArray[i].SetActive(true);
         Debug.Log(panelArray[i] + " set active");
+        HideSceneObjects();
     }
     public void SetPanelInactive(int i)
     {
         isPanelActiveArray[i] = false;
         panelArray[i].SetActive(false);
         Debug.Log(panelArray[i] + " set inactive");
+        UnhideSceneObjects();
+    }
+
+    public void HideSceneObjects()
+    {
+        sceneObjects.SetActive(false);
+    }
+
+    public void UnhideSceneObjects()
+    {
+        sceneObjects.SetActive(true);
     }
 }

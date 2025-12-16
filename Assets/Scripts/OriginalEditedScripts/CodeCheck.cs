@@ -63,7 +63,7 @@ public class CodeCheck : MonoBehaviour
                 Incorrect();
                 return;
             case "HiddenText":
-                if (strCode.ToUpper().Equals("PROFILES"))
+                if (strCode.ToUpper().Equals("SECURITY"))
                 {
                     unlockPanel.SetActive(true);
                     Invoke("LoadNextScene", timeToWait);
