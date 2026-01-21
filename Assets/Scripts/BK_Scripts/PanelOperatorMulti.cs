@@ -5,11 +5,12 @@ using UnityEngine;
 using System;
 using Debug = UnityEngine.Debug;
 
-public class PanelOperator : MonoBehaviour
+public class PanelOperatorMulti : MonoBehaviour
 {
     public GameObject[] panelArray;
     public bool[] isPanelActiveArray;
     public GameObject sceneObjects;
+    public GameObject scrollObjects;
 
     private void Awake()
     {
@@ -18,6 +19,7 @@ public class PanelOperator : MonoBehaviour
             panelArray[0].SetActive(isPanelActiveArray[0]);
         }
         sceneObjects.SetActive(false);
+        scrollObjects.SetActive(false);
     }
     public void ShowPanel(int i)
     {
@@ -28,7 +30,7 @@ public class PanelOperator : MonoBehaviour
         }
         else
         {
-            for(int j = 0; j < panelArray.Length; j++)
+            for (int j = 0; j < panelArray.Length; j++)
             {
                 Debug.Log(j);
                 Debug.Log(panelArray[j] + " sent to inactive from for loop");
@@ -36,7 +38,7 @@ public class PanelOperator : MonoBehaviour
             }
             SetPanelActive(i);
         }
-            
+
 
     }
 
@@ -52,7 +54,7 @@ public class PanelOperator : MonoBehaviour
         isPanelActiveArray[i] = false;
         panelArray[i].SetActive(false);
         Debug.Log(panelArray[i] + " set inactive");
-        UnhideSceneObjects();     
+        UnhideSceneObjects();
     }
 
     public void HideSceneObjects()

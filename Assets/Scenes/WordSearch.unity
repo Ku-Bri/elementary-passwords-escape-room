@@ -24387,6 +24387,7 @@ MonoBehaviour:
   - {fileID: 611102177}
   - {fileID: 1594157359}
   isPanelActiveArray: 0100
+  sceneObjects: {fileID: 652046865}
 --- !u!1 &1368875867
 GameObject:
   m_ObjectHideFlags: 0

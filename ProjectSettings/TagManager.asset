@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Canvas
   - NavBar
+  - PasswordManager
+  - StickyNote
+  - .txt
+  - Notebook
   layers:
   - Default
   - TransparentFX
