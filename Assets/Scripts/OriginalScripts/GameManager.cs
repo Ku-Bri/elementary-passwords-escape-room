@@ -50,6 +50,7 @@ public class GameManager : MonoBehaviour
 
     // ========== CLEANUP: delete save file on quit / stop ==========
     private const string SaveFileName = "PasswordSceneState.json";
+    private const string SaveFileName1 = "WordPass1_SceneState.json";
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -89,12 +90,16 @@ public class GameManager : MonoBehaviour
     {
         // Delete from persistentDataPath (where your PasswordManager1 writes)
         var persistentPath = Path.Combine(Application.persistentDataPath, SaveFileName);
+        var persistentPath1 = Path.Combine(Application.persistentDataPath, SaveFileName1);
         SafeDelete(persistentPath, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
+        SafeDelete(persistentPath1, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
 
 #if UNITY_EDITOR
         // If you sometimes save copies in Assets/SaveData while testing, remove those too.
         var editorPath = Path.Combine(Application.dataPath, "SaveData", SaveFileName);
+        var editorPath1 = Path.Combine(Application.dataPath, "SaveData", SaveFileName1);
         SafeDelete(editorPath, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
+        SafeDelete(editorPath1, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
 #endif
     }
 

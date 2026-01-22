@@ -73,7 +73,6 @@ public class PasswordManager1 : MonoBehaviour
 
     private void Start()
     {
-        // NEW: Load saved state AFTER setting defaults
         if (File.Exists(SavePath))
         {
             LoadState();   // <-- Now safe to restore without overwriting initialization
@@ -143,7 +142,7 @@ public class PasswordManager1 : MonoBehaviour
     public void SaveState()
     {
 
-        Debug.Log(">>> SaveState() CALLED <<<");
+        //Debug.Log(">>> SaveState() CALLED <<<");
 
         SaveData data = new SaveData();
 
@@ -177,8 +176,8 @@ public class PasswordManager1 : MonoBehaviour
         File.WriteAllText(SavePath, json);
 
 
-        Debug.Log(">>> Save COMPLETE at: " + SavePath + " <<<");
-        Debug.Log("JSON SAVED:\n" + json);
+        //Debug.Log(">>> Save COMPLETE at: " + SavePath + " <<<");
+        //Debug.Log("JSON SAVED:\n" + json);
 
         sm.LoadNextScene();
     }
@@ -186,18 +185,18 @@ public class PasswordManager1 : MonoBehaviour
     // ---------- Load ----------
     private void LoadState()
     {
-        Debug.Log(">>> LoadState() CALLED <<<");
+        //Debug.Log(">>> LoadState() CALLED <<<");
 
 
         if (!File.Exists(SavePath))
         {
-            Debug.Log(">>> NO SAVE FILE FOUND at: " + SavePath);
+            //Debug.Log(">>> NO SAVE FILE FOUND at: " + SavePath);
             return;
         }
 
         string json = File.ReadAllText(SavePath);
 
-        Debug.Log("JSON LOADED:\n" + json);
+        //Debug.Log("JSON LOADED:\n" + json);
 
         SaveData data = JsonUtility.FromJson<SaveData>(json);
 
@@ -227,6 +226,6 @@ public class PasswordManager1 : MonoBehaviour
         if (textFile != null) textFile.SetActive(data.textFileActive);
         if (stickyNote != null) stickyNote.SetActive(data.stickyNoteActive);
         
-        Debug.Log("Loaded PasswordManager state ← " + SavePath);
+        //Debug.Log("Loaded PasswordManager state ← " + SavePath);
     }
 }
