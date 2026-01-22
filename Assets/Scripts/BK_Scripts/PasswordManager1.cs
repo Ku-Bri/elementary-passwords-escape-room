@@ -72,7 +72,7 @@ public class PasswordManager1 : MonoBehaviour
     {
         // Your original UI setup
         textList.text = "<size=50><align=\"center\">_SECURED PASSWORDS_</align>\n\n";
-        passcodes.text = "<size=45><align=\"center\">\n\nPASSCODES</align>\n";
+        passcodes.text = "\n\n<size=45><align=\"center\">\n\nPASSCODES</align>\n";
         passcodesObject.SetActive(false);
 
         // NEW: Load saved state AFTER setting defaults
@@ -130,7 +130,10 @@ public class PasswordManager1 : MonoBehaviour
     // ---------- On Scene Exit → SAVE ----------
     private void OnDisable()
     {
+
+        if (SaveQuitGuard.IsQuitting) return;   // <-- do NOT save when app/editor is quitting
         SaveState();
+
     }
 
     public void SaveState()

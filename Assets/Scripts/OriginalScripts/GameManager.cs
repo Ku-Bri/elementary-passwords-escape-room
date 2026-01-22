@@ -5,12 +5,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     [SerializeField] private GameObject EventSystem;
-    public PasswordManager1 pm;
 
     // Start is called before the first frame update
     void Start()
@@ -35,14 +37,6 @@ public class GameManager : MonoBehaviour
 
     void ChangedActiveScene(Scene current, Scene next)
     {
-        /*pm = FindObjectOfType<PasswordManager1>();
-
-        if (pm != null)
-        {
-            pm.SaveState();
-        }
-        */
-
         if (FindObjectOfType<EventSystem>() == null)
         {
             Debug.Log("No event system found, adding one...");
@@ -52,28 +46,77 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ------------------------- App End Cleanup -------------------------
+
+
+    // ========== CLEANUP: delete save file on quit / stop ==========
+    private const string SaveFileName = "PasswordSceneState.json";
+
+#if UNITY_EDITOR
+    private void OnEnable()
+    {
+        // Keep your existing subscriptions; add this if not present:
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged_DeleteSave;
+    }
+
+    private void OnDisable()
+    {
+        EditorApplication.playModeStateChanged -= OnPlayModeStateChanged_DeleteSave;
+    }
+
+    // IMPORTANT: delete AFTER play mode has fully stopped, not on ExitingPlayMode.
+    private void OnPlayModeStateChanged_DeleteSave(PlayModeStateChange state)
+    {
+        if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            // Mark quitting so OnDisable() in scene objects won't save again.
+            SaveQuitGuard.IsQuitting = true;
+        }
+        else if (state == PlayModeStateChange.EnteredEditMode)
+        {
+            TryDeleteSaveFile();   // Now it's safe to delete—nothing else will re-save.
+        }
+    }
+#endif
+
     private void OnApplicationQuit()
     {
+        // Mark quitting so OnDisable() won’t save in builds.
+        SaveQuitGuard.IsQuitting = true;
         TryDeleteSaveFile();
     }
 
     private void TryDeleteSaveFile()
     {
-        // Always delete the save in persistentDataPath
-        var persistentPath = Path.Combine(Application.persistentDataPath, pm.saveFileName);
+        // Delete from persistentDataPath (where your PasswordManager1 writes)
+        var persistentPath = Path.Combine(Application.persistentDataPath, SaveFileName);
+        SafeDelete(persistentPath, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
+
+#if UNITY_EDITOR
+        // If you sometimes save copies in Assets/SaveData while testing, remove those too.
+        var editorPath = Path.Combine(Application.dataPath, "SaveData", SaveFileName);
+        SafeDelete(editorPath, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
+#endif
+    }
+
+    private void SafeDelete(string path, string okMsg, string failMsg)
+    {
         try
         {
-            if (File.Exists(persistentPath))
+            if (File.Exists(path))
             {
-                File.Delete(persistentPath);
-                Debug.Log($"[GameManager] Deleted save file: {persistentPath}");
+                File.Delete(path);
+                Debug.Log(okMsg + path);
             }
         }
         catch (System.Exception ex)
         {
-            Debug.LogWarning($"[GameManager] Could not delete {persistentPath}: {ex.Message}");
-
+            Debug.LogWarning($"{failMsg}{path} ({ex.Message})");
         }
     }
+
+}
+
+public static class SaveQuitGuard
+{
+    public static bool IsQuitting { get; set; } = false;
 }
