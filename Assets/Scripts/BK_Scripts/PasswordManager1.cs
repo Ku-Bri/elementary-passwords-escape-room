@@ -62,7 +62,10 @@ public class PasswordManager1 : MonoBehaviour
         public bool notebookActive;
         public bool textFileActive;
         public bool stickyNoteActive;
-        
+
+        public Vector3 notebookPos;
+        public Vector3 textFilePos;
+        public Vector3 stickyNotePos;
     }
 
 
@@ -165,6 +168,10 @@ public class PasswordManager1 : MonoBehaviour
         data.notebookActive = notebook.activeSelf;
         data.textFileActive = textFile.activeSelf;
         data.stickyNoteActive = stickyNote.activeSelf;
+
+        data.notebookPos = notebook.transform.position;
+        data.textFilePos = textFile.transform.position;
+        data.stickyNotePos = stickyNote.transform.position;
         
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
@@ -211,6 +218,9 @@ public class PasswordManager1 : MonoBehaviour
             
         }
 
+        notebook.transform.position = data.notebookPos;
+        textFile.transform.position = data.textFilePos;
+        stickyNote.transform.position = data.stickyNotePos;
 
         //if (sceneObjects != null) sceneObjects.SetActive(data.sceneObjectsActive);
         if (notebook != null) notebook.SetActive(data.notebookActive);
