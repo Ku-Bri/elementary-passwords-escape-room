@@ -21,8 +21,8 @@ public class PasswordManager1 : MonoBehaviour
     private int code2;
     private int code3;
 
-    private bool scenePreviouslyLoaded = false;
-    private bool userHasAddedPasswords = false;
+    private bool scenePreviouslyLoaded;
+    private bool userHasAddedPasswords;
 
 
     public GameObject sceneObjects;
@@ -70,11 +70,6 @@ public class PasswordManager1 : MonoBehaviour
 
     private void Start()
     {
-        // Your original UI setup
-        textList.text = "<size=50><align=\"center\">_SECURED PASSWORDS_</align>\n\n";
-        passcodes.text = "\n\n<size=45><align=\"center\">\n\nPASSCODES</align>\n";
-        passcodesObject.SetActive(false);
-
         // NEW: Load saved state AFTER setting defaults
         if (File.Exists(SavePath))
         {
@@ -83,6 +78,11 @@ public class PasswordManager1 : MonoBehaviour
         else
         {
             scenePreviouslyLoaded = false;
+            userHasAddedPasswords = false;
+            // Your original UI setup
+            textList.text = "<size=50><align=\"center\">_SECURED PASSWORDS_</align>\n\n";
+            passcodes.text = "<size=45><align=\"center\">\n\nPASSCODES</align>\n";
+            passcodesObject.SetActive(false);
         }
 
         if (!scenePreviouslyLoaded)
@@ -92,12 +92,16 @@ public class PasswordManager1 : MonoBehaviour
         }
     }
 
-
+    //Creates the random codes/pins and set the passcode text to them. 
     private void createRandomNums()
     {
         code1 = Random.Range(1000, 9999);
         code2 = Random.Range(1000, 9999);
         code3 = Random.Range(1000, 9999);
+        passcodes.text +=
+                $"<size=45><align=\"center\">Set1</align></size>\n<size=35><align=\"center\">{code1}</align></size>\n\n" +
+                $"\n<size=45><align=\"center\">Set2</align></size>\n<size=35><align=\"center\">{code2}</align></size>\n\n" +
+                $"\n\n<size=45><align=\"center\">Set3</align></size>\n<size=35><align=\"center\">{code3}</align></size>";
     }
 
     // ---------- Populate UI ----------
@@ -120,10 +124,7 @@ public class PasswordManager1 : MonoBehaviour
         if (slotIndex == 3)
         {
             passcodesObject.SetActive(true);
-            passcodes.text =
-                $"<size=45><align=\"center\">Set1</align></size>\n<size=35><align=\"center\">{code1}</align></size>\n\n" +
-                $"<size=45><align=\"center\">Set2</align></size>\n<size=35><align=\"center\">{code2}</align></size>\n\n" +
-                $"<size=45><align=\"center\">Set3</align></size>\n<size=35><align=\"center\">{code3}</align></size>";
+            
         }
     }
 
@@ -196,17 +197,18 @@ public class PasswordManager1 : MonoBehaviour
         scenePreviouslyLoaded = data.scenePreviouslyLoaded;
         userHasAddedPasswords = data.userHasAddedPasswords;
 
+        textList.text = data.textList;
+        passcodes.text = data.passcodes; passcodesObject.SetActive(data.passcodesObjectActive);
+       
+        code1 = data.code1;
+        code2 = data.code2;
+        code3 = data.code3;
+
+        slotIndex = data.slotIndex;
+
         if (userHasAddedPasswords)
         {
-            textList.text = data.textList;
-            passcodes.text = data.passcodes;
-            passcodesObject.SetActive(data.passcodesObjectActive);
-
-            code1 = data.code1;
-            code2 = data.code2;
-            code3 = data.code3;
-
-            slotIndex = data.slotIndex;
+            
         }
 
 
