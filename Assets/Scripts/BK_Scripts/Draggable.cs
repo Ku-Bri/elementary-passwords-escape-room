@@ -12,7 +12,9 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
     public TextMeshProUGUI username;
     public TextMeshProUGUI password;
 
-    public PasswordManager passwordManager;
+    public PasswordManager1 passwordManager;
+
+    public bool hasBeenAdded = false;
 
     void Start()
     {
@@ -38,6 +40,7 @@ public class Draggable : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDra
         if (isOverTarget)
         {
             passwordManager.Populate(website.text,  username.text, password.text);
+            hasBeenAdded = true;
             gameObject.SetActive(false);
         }
     }
