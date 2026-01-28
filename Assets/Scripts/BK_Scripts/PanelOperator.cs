@@ -11,8 +11,15 @@ public class PanelOperator : MonoBehaviour
     public bool[] isPanelActiveArray;
     public GameObject sceneObjects;
 
-    private void Awake()
+    private void Start()
     {
+        StartCoroutine(PanelDelay());
+    }
+
+    private IEnumerator PanelDelay()
+    {
+        yield return null;
+
         if (isPanelActiveArray[0])
         {
             panelArray[0].SetActive(isPanelActiveArray[0]);

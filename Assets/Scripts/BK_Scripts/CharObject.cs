@@ -1,23 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
+
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class CharObject : MonoBehaviour
 {
 
-    /*[SerializeField]
-    private bool isStartingChar;
-    [SerializeField]
-    private bool isCharInWord;
-    [SerializeField]
-    private bool isEndingChar;
-    */
-    //public char character;
+    [Header("Identity")]
+    [SerializeField] private string charId;
+    public string CharId => charId;
+
+    [Header("State")]
     public bool isCharSelected = false;
+
+    [Header("UI References")]
     public TextMeshProUGUI _text;
     public Button _button;
 
@@ -25,27 +26,29 @@ public class CharObject : MonoBehaviour
     private Color textSelectedColor = new Color32(123, 123, 123, 255);
     private Color textCompletedColor = new Color32(45, 120, 54, 255);
 
+
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (string.IsNullOrEmpty(charId))
+        {
+            charId = GUID.Generate().ToString();
+            EditorUtility.SetDirty(this);
+        }
+    }
+#endif
+
+
     public void CharChecker()
     {
         //Debug.Log("Entered CharChecker");
+
         isCharSelected = !isCharSelected;
         Debug.Log(_text.text + " isCharSelected is " + isCharSelected);
-        if (isCharSelected)
-        {
-            TextSelectedColor();
 
-        }
-        else
-        {
-            TextOriginalColor();
-        }
-
-        /*
-        if (!isCharInWord)
-        {
-
-        }
-        */
+        if (isCharSelected) {TextSelectedColor();}
+        else {TextOriginalColor();}
     }
 
     public void TextOriginalColor()
@@ -63,11 +66,24 @@ public class CharObject : MonoBehaviour
     public void TextCompletedColor()
     {
         _text.color = textCompletedColor;
-        Debug.Log(_text.text + " changed to dark green");
+        //Debug.Log(_text.text + " changed to dark green");
     }
 
-    public bool IsCharSelected()
+
+    private void OnEnable()
     {
-        return isCharSelected;
+        // Respect "completed" state first: if the button is disabled, keep it green.
+        if (_button != null && !_button.interactable)
+        {
+            TextCompletedColor();
+            return;
+        }
+
+        // Otherwise, selected -> gray, unselected -> white.
+        if (isCharSelected) TextSelectedColor();
+        else TextOriginalColor();
     }
+
+
+
 }

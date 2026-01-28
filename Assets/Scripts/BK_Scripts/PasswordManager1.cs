@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -66,7 +67,9 @@ public class PasswordManager1 : MonoBehaviour
         public Vector3 notebookPos;
         public Vector3 textFilePos;
         public Vector3 stickyNotePos;
-    }
+
+        public int activePanelIndex = -1; // -1 means no panel open
+}
 
 
     // ---------- On Scene Start ----------
@@ -171,7 +174,20 @@ public class PasswordManager1 : MonoBehaviour
         data.notebookPos = notebook.transform.position;
         data.textFilePos = textFile.transform.position;
         data.stickyNotePos = stickyNote.transform.position;
-        
+
+        var po = Object.FindObjectsOfType<PanelOperatorMulti>(true).FirstOrDefault();
+        if (po != null)
+        {
+            for (int i = 0; i < po.isPanelActiveArray.Length; i++)
+            {
+                if (po.isPanelActiveArray[i])
+                {
+                    data.activePanelIndex = i;
+                    break;
+                }
+            }
+        }
+
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
 
@@ -225,7 +241,29 @@ public class PasswordManager1 : MonoBehaviour
         if (notebook != null) notebook.SetActive(data.notebookActive);
         if (textFile != null) textFile.SetActive(data.textFileActive);
         if (stickyNote != null) stickyNote.SetActive(data.stickyNoteActive);
-        
+
+        StartCoroutine(RestorePanelNextFrame(data.activePanelIndex));
+
         //Debug.Log("Loaded PasswordManager state ← " + SavePath);
     }
+
+
+    private System.Collections.IEnumerator RestorePanelNextFrame(int activePanelIndex)
+    {
+        yield return null; // let PanelOperatorMulti.Awake/Start run first
+
+        // Restore previously active panel
+        var po = Object.FindObjectsOfType<PanelOperatorMulti>(true).FirstOrDefault();
+        if (po != null)
+        {
+            for (int j = 0; j < po.panelArray.Length; j++)
+                po.SetPanelInactive(j);
+
+            if (activePanelIndex >= 0 && activePanelIndex < po.panelArray.Length)
+                po.SetPanelActive(activePanelIndex);
+            else
+                po.UnhideSceneObjects();
+        }
+    }
+
 }

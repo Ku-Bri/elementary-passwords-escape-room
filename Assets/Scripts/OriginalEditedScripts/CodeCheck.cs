@@ -23,7 +23,6 @@ public class CodeCheck : MonoBehaviour
     private int codeSet;
     private int unlockCode;
 
-
     // Primary(runtime) paths
     private string wordPass1SavePath => Path.Combine(Application.persistentDataPath, wordPass1FileName);
     private string passwordStatePath => Path.Combine(Application.persistentDataPath, passwordStateFileName);
@@ -47,6 +46,69 @@ public class CodeCheck : MonoBehaviour
         public int code3;
         public int slotIndex;
     }
+
+
+    // --- TestYourKnowledge (Quiz) ---
+    private string quizStatePrimaryFileName = "quiz_state.json";
+
+    private string quizStatePrimaryPath => Path.Combine(Application.persistentDataPath, quizStatePrimaryFileName);
+
+    [Serializable]
+    private class QuizState
+    {
+        public bool quizCompleted;
+        public int rewardCode;
+        public bool hideAnswerButtons;
+    }
+
+
+    private string GetQuizStatePath()
+    {
+        // Primary (build/editor runtime)
+        if (File.Exists(quizStatePrimaryPath)) return quizStatePrimaryPath;
+
+#if UNITY_EDITOR
+        // Editor fallback under Assets/SaveData
+        string editorPrimary = Path.Combine(Application.dataPath, "SaveData", quizStatePrimaryFileName);
+        if (File.Exists(editorPrimary)) return editorPrimary;
+
+#endif
+        // Default to primary path even if it doesn't exist (caller will handle the miss)
+        return quizStatePrimaryPath;
+    }
+
+
+    private bool TryGetQuizRewardCode(out int rewardCode)
+    {
+        rewardCode = 0;
+        string path = GetQuizStatePath();
+        if (!File.Exists(path))
+        {
+            Debug.LogWarning($"[CodeCheck] Quiz state file not found at: {path}");
+            return false;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(path);
+            var data = JsonUtility.FromJson<QuizState>(json);
+            if (data == null)
+            {
+                Debug.LogWarning($"[CodeCheck] Could not parse quiz JSON at: {path}");
+                return false;
+            }
+
+            rewardCode = data.rewardCode;
+            Debug.Log($"[CodeCheck] quiz rewardCode = {rewardCode} (from {path})");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[CodeCheck] Failed reading quiz state: {ex.Message}");
+            return false;
+        }
+    }
+
 
     // ---------------- Helpers to find the file (Editor + Build) ----------------
     private string GetWordPass1Path()
@@ -147,7 +209,26 @@ public class CodeCheck : MonoBehaviour
                 Incorrect();
                 return;
             case "TestYourKnowledge":
-                if (strCode.Equals("3456"))
+                // Read the reward code saved by the quiz scene
+                if (!TryGetQuizRewardCode(out unlockCode))
+                {
+                    Debug.LogWarning("[CodeCheck] Could not load quiz reward code. Aborting check.");
+                    Incorrect();
+                    return;
+                }
+
+                // Compare user input vs saved reward code
+                if (int.TryParse(strCode, out var enteredTF) && enteredTF == unlockCode)
+                {
+                    unlockPanel.SetActive(true);
+                    Invoke("LoadNextScene", timeToWait);
+                    return;
+                }
+
+                Debug.LogWarning("Incorrect code, can't advance to the next screen");
+                Incorrect();
+                return;
+                /*if (strCode.Equals("3456"))
                 {
                     unlockPanel.SetActive(true);
                     Invoke("LoadNextScene", timeToWait);
@@ -156,7 +237,7 @@ public class CodeCheck : MonoBehaviour
                 }
                 Debug.LogWarning("Incorrect code, can't advance to the next screen");
                 Incorrect();
-                return;
+                return;*/
             case "Directional Lock":
                 if (strCode.ToUpper().Equals("UURRD"))
                 {
