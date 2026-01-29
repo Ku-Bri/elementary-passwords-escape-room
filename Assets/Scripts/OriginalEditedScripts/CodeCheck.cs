@@ -16,6 +16,18 @@ public class CodeCheck : MonoBehaviour
     public GameObject unlockPanel;
     public float timeToWait;
 
+    // --- Directional Lock ---
+    private string directionalLockFileName = "directional_lock_state.json";
+    private string directionalLockPrimaryPath => Path.Combine(Application.persistentDataPath, directionalLockFileName);
+
+    [Serializable]
+    private class DirectionalLockStateForCheck
+    {
+        public int gridSize;
+        public List<int> solutionPath;
+        public string expectedCode;
+    }
+
     // -------- WordPass1 --------
     private string wordPass1FileName = "WordPass1_SceneState.json";
     private string passwordStateFileName = "PasswordSceneState.json";
@@ -127,11 +139,11 @@ public class CodeCheck : MonoBehaviour
     {
         string p = passwordStatePath;
         if (File.Exists(p)) return p;
-/*
-#if UNITY_EDITOR
-        string editorPath = Path.Combine(Application.dataPath, "SaveData", passwordStateFileName);
-        if (File.Exists(editorPath)) return editorPath;
-#endif*/
+        /*
+        #if UNITY_EDITOR
+                string editorPath = Path.Combine(Application.dataPath, "SaveData", passwordStateFileName);
+                if (File.Exists(editorPath)) return editorPath;
+        #endif*/
         return p;
     }
 
@@ -172,88 +184,117 @@ public class CodeCheck : MonoBehaviour
         {
 
             case "WordSearch":
-                Debug.Log(levelNameToCheck);
-                Debug.Log(strCode);
-                if (strCode.Equals("624"))
                 {
-                    unlockPanel.SetActive(true);
-                    Invoke("LoadNextScene", timeToWait);
-                    //LoadNextScene();
+                    Debug.Log(levelNameToCheck);
+                    Debug.Log(strCode);
+                    if (strCode.Equals("624"))
+                    {
+                        unlockPanel.SetActive(true);
+                        Invoke("LoadNextScene", timeToWait);
+                        //LoadNextScene();
+                        return;
+                    }
+                    Debug.LogWarning("Incorrect code, can't advance to the next screen");
+                    Incorrect();
                     return;
                 }
-                Debug.LogWarning("Incorrect code, can't advance to the next screen");
-                Incorrect();
-                return;
             case "HiddenText":
-                if (!RetrieveCodeSet())
                 {
-                    Debug.LogWarning("[CodeCheck] Could not determine codeSet. Aborting check.");
-                    Incorrect();
-                    return;
-                }
-                if (!ResolveUnlockCode(codeSet))
-                {
-                    Debug.LogWarning("[CodeCheck] Could not resolve unlock code from PasswordSceneState. Aborting check.");
-                    Incorrect();
-                    return;
-                }
+                    if (!RetrieveCodeSet())
+                    {
+                        Debug.LogWarning("[CodeCheck] Could not determine codeSet. Aborting check.");
+                        Incorrect();
+                        return;
+                    }
+                    if (!ResolveUnlockCode(codeSet))
+                    {
+                        Debug.LogWarning("[CodeCheck] Could not resolve unlock code from PasswordSceneState. Aborting check.");
+                        Incorrect();
+                        return;
+                    }
 
-                if (int.TryParse(strCode, out var entered) && entered == unlockCode)
-                {
-                    unlockPanel.SetActive(true);
-                    Invoke("LoadNextScene", timeToWait);
-                    //LoadNextScene();
+                    if (int.TryParse(strCode, out var entered) && entered == unlockCode)
+                    {
+                        unlockPanel.SetActive(true);
+                        Invoke("LoadNextScene", timeToWait);
+                        //LoadNextScene();
+                        return;
+                    }
+                    Debug.LogWarning("Incorrect code, can't advance to the next screen");
+                    Incorrect();
                     return;
                 }
-                Debug.LogWarning("Incorrect code, can't advance to the next screen");
-                Incorrect();
-                return;
             case "TestYourKnowledge":
-                // Read the reward code saved by the quiz scene
-                if (!TryGetQuizRewardCode(out unlockCode))
                 {
-                    Debug.LogWarning("[CodeCheck] Could not load quiz reward code. Aborting check.");
+                    // Read the reward code saved by the quiz scene
+                    if (!TryGetQuizRewardCode(out unlockCode))
+                    {
+                        Debug.LogWarning("[CodeCheck] Could not load quiz reward code. Aborting check.");
+                        Incorrect();
+                        return;
+                    }
+
+                    // Compare user input vs saved reward code
+                    if (int.TryParse(strCode, out var enteredTF) && enteredTF == unlockCode)
+                    {
+                        unlockPanel.SetActive(true);
+                        Invoke("LoadNextScene", timeToWait);
+                        return;
+                    }
+
+                    Debug.LogWarning("Incorrect code, can't advance to the next screen");
                     Incorrect();
                     return;
+                    /*if (strCode.Equals("3456"))
+                    {
+                        unlockPanel.SetActive(true);
+                        Invoke("LoadNextScene", timeToWait);
+                        //LoadNextScene();
+                        return;
+                    }
+                    Debug.LogWarning("Incorrect code, can't advance to the next screen");
+                    Incorrect();
+                    return;*/
                 }
-
-                // Compare user input vs saved reward code
-                if (int.TryParse(strCode, out var enteredTF) && enteredTF == unlockCode)
-                {
-                    unlockPanel.SetActive(true);
-                    Invoke("LoadNextScene", timeToWait);
-                    return;
-                }
-
-                Debug.LogWarning("Incorrect code, can't advance to the next screen");
-                Incorrect();
-                return;
-                /*if (strCode.Equals("3456"))
-                {
-                    unlockPanel.SetActive(true);
-                    Invoke("LoadNextScene", timeToWait);
-                    //LoadNextScene();
-                    return;
-                }
-                Debug.LogWarning("Incorrect code, can't advance to the next screen");
-                Incorrect();
-                return;*/
             case "Directional Lock":
-                if (strCode.ToUpper().Equals("UURRD"))
                 {
-                    unlockPanel.SetActive(true);
-                    Invoke("LoadNextScene", timeToWait);
-                    //LoadNextScene();
+                    if (!TryGetDirectionalLockExpectedCode(out var expected))
+                    {
+                        Debug.LogWarning("[CodeCheck] Could not load directional lock expected code.");
+                        Incorrect();
+                        return;
+                    }
+
+                    string enteredCode = NormalizeDirectionalCode(strCode);
+
+                    if (enteredCode == expected)
+                    {
+                        unlockPanel.SetActive(true);
+                        Invoke("LoadNextScene", timeToWait);
+                        return;
+                    }
+
+                    Debug.LogWarning($"Incorrect code. Entered={enteredCode} Expected={expected}");
+                    Incorrect();
                     return;
+
+                    /*case "Directional Lock":
+                        if (strCode.ToUpper().Equals("UURRD"))
+                        {
+                            unlockPanel.SetActive(true);
+                            Invoke("LoadNextScene", timeToWait);
+                            //LoadNextScene();
+                            return;
+                        }
+                        Debug.LogWarning("Incorrect code, can't advance to the next screen");
+                        Incorrect();
+                        return;
+                    case "PasswordStrength":
+                        break;
+                    default:
+                        Debug.LogError("Unkown scene");
+                        break;*/
                 }
-                Debug.LogWarning("Incorrect code, can't advance to the next screen");
-                Incorrect();
-                return;
-            case "PasswordStrength":
-                break;
-            default:
-                Debug.LogError("Unkown scene");
-                break;
         }
     }
 
@@ -357,6 +398,86 @@ public class CodeCheck : MonoBehaviour
             Debug.LogError($"[CodeCheck] Failed reading PasswordSceneState: {ex.Message}");
             return false;
         }
+    }
+
+    private string GetDirectionalLockPath()
+    {
+        if (File.Exists(directionalLockPrimaryPath)) return directionalLockPrimaryPath;
+
+#if UNITY_EDITOR
+        string editorPath = Path.Combine(Application.dataPath, "SaveData", directionalLockFileName);
+        if (File.Exists(editorPath)) return editorPath;
+#endif
+
+        return directionalLockPrimaryPath;
+    }
+
+    private bool TryGetDirectionalLockExpectedCode(out string expected)
+    {
+        expected = null;
+
+        string path = GetDirectionalLockPath();
+        if (!File.Exists(path))
+        {
+            Debug.LogWarning($"[CodeCheck] Directional lock file not found at: {path}");
+            return false;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(path);
+            var data = JsonUtility.FromJson<DirectionalLockStateForCheck>(json);
+            if (data == null)
+            {
+                Debug.LogWarning($"[CodeCheck] Could not parse directional lock JSON at: {path}");
+                return false;
+            }
+
+            // Prefer stored expectedCode
+            if (!string.IsNullOrEmpty(data.expectedCode))
+            {
+                expected = NormalizeDirectionalCode(data.expectedCode);
+                return true;
+            }
+
+            // Fallback: compute from solutionPath
+            if (data.solutionPath == null || data.solutionPath.Count < 2)
+                return false;
+
+            expected = NormalizeDirectionalCode(ComputeExpectedFromPath(data.solutionPath, data.gridSize));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[CodeCheck] Failed reading directional lock state: {ex.Message}");
+            return false;
+        }
+    }
+
+    private string NormalizeDirectionalCode(string s)
+    {
+        return s.Trim().ToUpperInvariant().Replace(" ", "");
+    }
+
+    private string ComputeExpectedFromPath(List<int> path, int size)
+    {
+        var chars = new List<char>();
+
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            int from = path[i];
+            int to = path[i + 1];
+
+            int fr = from / size, fc = from % size;
+            int tr = to / size, tc = to % size;
+
+            if (tr == fr - 1 && tc == fc) chars.Add('U');
+            else if (tr == fr + 1 && tc == fc) chars.Add('D');
+            else if (tr == fr && tc == fc - 1) chars.Add('L');
+            else if (tr == fr && tc == fc + 1) chars.Add('R');
+        }
+
+        return new string(chars.ToArray());
     }
 
 }

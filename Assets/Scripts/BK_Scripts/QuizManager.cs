@@ -21,6 +21,8 @@ public class QuizManagerTF : MonoBehaviour
     public GameObject correctPanel;       // shows briefly on correct answers
     public GameObject wrongPanel;         // shows briefly on wrong answers
 
+    private PanelOperator po;
+
     [Header("Navigation")]
     public SceneMovement sceneMovement;   // assign your existing SceneMovement (for LoadNextScene())
 
@@ -44,6 +46,8 @@ public class QuizManagerTF : MonoBehaviour
 
     private void Start()
     {
+        po = FindObjectOfType<PanelOperator>(true);
+
         SetPanel(correctPanel, false);
         SetPanel(wrongPanel, false);
         // Do NOT force questionPanel here; PanelOperator controls sceneObjects/questionPanel
@@ -178,11 +182,12 @@ public class QuizManagerTF : MonoBehaviour
 
     private IEnumerator HandleCorrectThenAdvance()
     {
-        // Hide question, show Correct panel briefly
-        SetPanel(questionPanel, false);
+        // Hide question via PanelOperator
+        if (po != null) po.HideSceneObjects();
+        else SetPanel(questionPanel, false);
+
         SetPanel(correctPanel, true);
         yield return new WaitForSeconds(0.6f);
-
         SetPanel(correctPanel, false);
 
         currentIndex++;
@@ -193,21 +198,30 @@ public class QuizManagerTF : MonoBehaviour
         }
         else
         {
-            // Bring back question panel for next question
+            // Show question via PanelOperator
+            if (po != null) po.UnhideSceneObjects();
+            else SetPanel(questionPanel, true);
+
             ShowQuestion();
         }
     }
 
     private IEnumerator HandleWrongThenRestart()
     {
-        // Hide question, show Wrong panel briefly
-        SetPanel(questionPanel, false);
+        // Hide question via PanelOperator
+        if (po != null) po.HideSceneObjects();
+        else SetPanel(questionPanel, false);
+
         SetPanel(wrongPanel, true);
         yield return new WaitForSeconds(0.8f);
-
-        // Hide wrong panel, rebuild a fresh run, and show first question
         SetPanel(wrongPanel, false);
+
         BeginNewRun();
+
+        // Show question via PanelOperator
+        if (po != null) po.UnhideSceneObjects();
+        else SetPanel(questionPanel, true);
+
         ShowQuestion();
     }
 

@@ -53,7 +53,8 @@ public class GameManager : MonoBehaviour
     private const string SaveFileName1 = "WordPass1_SceneState.json";
     private const string SaveFileName2 = "wordsearch_default.json";
     private const string SaveFileName3 = "quiz_state.json";
- 
+    private const string SaveFileName4 = "directional_lock_state.json";
+
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -95,20 +96,24 @@ public class GameManager : MonoBehaviour
         var persistentPath1 = Path.Combine(Application.persistentDataPath, SaveFileName1);
         var persistentPath2 = Path.Combine(Application.persistentDataPath, SaveFileName2);
         var persistentPath3 = Path.Combine(Application.persistentDataPath, SaveFileName3);
+        var persistentPath4 = Path.Combine(Application.persistentDataPath, SaveFileName4);
         SafeDelete(persistentPath, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
         SafeDelete(persistentPath1, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
         SafeDelete(persistentPath2, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
         SafeDelete(persistentPath3, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
+        SafeDelete(persistentPath4, "[GameManager] Deleted save file: ", "[GameManager] Could not delete save file: ");
 
 #if UNITY_EDITOR
         var editorPath = Path.Combine(Application.dataPath, "SaveData", SaveFileName);
         var editorPath1 = Path.Combine(Application.dataPath, "SaveData", SaveFileName1);
         var editorPath2 = Path.Combine(Application.dataPath, "SaveData", SaveFileName2);
         var editorPath3 = Path.Combine(Application.dataPath, "SaveData", SaveFileName3);
+        var editorPath4 = Path.Combine(Application.dataPath, "SaveData", SaveFileName4);
         SafeDelete(editorPath, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
         SafeDelete(editorPath1, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
         SafeDelete(editorPath2, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
         SafeDelete(editorPath3, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
+        SafeDelete(editorPath4, "[GameManager] Deleted editor save file: ", "[GameManager] Could not delete editor save file: ");
 #endif
     }
 
