@@ -3,75 +3,53 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class DirectionalLockManagerChoice : MonoBehaviour
 {
     [Header("Config")]
-    [Tooltip("Grid will be size x size (4 or 5 recommended).")]
     public int gridSize = 5;
-
-    [Tooltip("Saved to persistentDataPath so returning to this scene keeps the same puzzle.")]
     public string saveFileName = "directional_lock_state.json";
-
     public QuestionBank questionBank;
 
-    [Header("Prompt Mix (Path tiles only)")]
-    [Range(0f, 1f)]
-    [Tooltip("For MEDIUM: 0.40 is a good default. Controls how often SAFER questions appear on the solution path.")]
-    public float saferRateOnPath = 0.40f;
-
-    [Tooltip("Minimum number of SAFER prompts on the path (if available).")]
-    public int minSaferOnPath = 2;
-
-    [Header("Behavior")]
-    [Tooltip("If true, player can click an already-answered tile to change their answer.")]
-    public bool allowReAnswer = true;
+    [Header("Visual/Interaction")]
+    [Tooltip("If true, the grid is hidden while the choice panel is active. If false, grid stays visible but non-interactable.")]
+    public bool hideGridWhenChoicePanelOpen = true;
 
     [Header("Grid UI")]
-    [Tooltip("CanvasGroup on GridRoot. Used to disable grid interaction when ChoicePanel is open.")]
-    public CanvasGroup gridCanvasGroup;
-
-    [Tooltip("The GridLayoutGroup container where cell prefabs will be instantiated.")]
-    public Transform gridContainer;
-
+    public CanvasGroup gridCanvasGroup;       // Add CanvasGroup to GridRoot
+    public Transform gridContainer;           // GridContainer with GridLayoutGroup
     public DirectionalLockCell cellPrefab;
 
     [Header("Choice Panel UI")]
-    [Tooltip("Panel that appears when a tile is clicked.")]
     public GameObject choicePanel;
-
-    [Tooltip("TMP_Text that displays the selected tile question.")]
     public TMP_Text choiceQuestionText;
-
     public Button safeButton;
     public Button unsafeButton;
 
+    [Header("Code UI")]
+    public TMP_Text playerCodeText;           // shows derived code from player's current SAFE marks
+    public TMP_Text playerCodeStatusText;     // optional: shows (no path / ambiguous / unique)
+
     [Header("Icons")]
-    public Sprite iconSafe;   // ✔
-    public Sprite iconUnsafe; // ✖
+    public Sprite iconSafe;                   // ✔
+    public Sprite iconUnsafe;                 // ✖
 
-    [Header("Optional - Navigation")]
-    [Tooltip("If assigned, Next/Prev calls can be routed through SceneMovement.")]
-    public SceneMovement sceneMovement; // Your script has LoadNextScene/LoadPreviousScene [1](https://univoftulsa-my.sharepoint.com/personal/bridget-kurr_utulsa_edu1/Documents/Microsoft%20Copilot%20Chat%20Files/SceneMovement.cs)
-
-    // -------------------- Runtime State --------------------
+    // -------- Runtime state --------
     private DirectionalLockState state;
     private readonly List<DirectionalLockCell> cells = new();
     private int pendingIndex = -1;
 
     private string SavePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
-    // -------------------- Unity Lifecycle --------------------
     private void Awake()
     {
-        if (safeButton != null) safeButton.onClick.AddListener(() => ResolveChoice(true));
-        if (unsafeButton != null) unsafeButton.onClick.AddListener(() => ResolveChoice(false));
+        safeButton.onClick.AddListener(() => ResolveChoice(true));
+        unsafeButton.onClick.AddListener(() => ResolveChoice(false));
 
-        if (choicePanel != null) choicePanel.SetActive(false);
-        SetGridInteractable(true);
+        choicePanel.SetActive(false);
+        SetGridActiveVisible(true, true);
     }
 
     private void Start()
@@ -79,89 +57,66 @@ public class DirectionalLockManagerChoice : MonoBehaviour
         LoadOrCreateState();
         BuildGrid();
         RefreshGridVisuals();
+        RecomputeAndDisplayPlayerCode();
     }
 
-    private void OnEnable()
-    {
-        // If we come back to the scene and UI is enabled later, refresh visuals.
-        if (state != null && cells.Count > 0)
-            RefreshGridVisuals();
-    }
-
-    // -------------------- Public API for Panel Overlay System --------------------
-    /// <summary>
-    /// Call this when Instructions/Hints open so we don't leave the grid disabled
-    /// or a question half-open. (Used by an improved PanelOperator or any overlay UI.)
-    /// </summary>
+    // Call this from your overlay panel system when instructions/hints open
+    // so we don't leave the puzzle in an input-locked state. [2](https://univoftulsa-my.sharepoint.com/personal/bridget-kurr_utulsa_edu1/Documents/Microsoft%20Copilot%20Chat%20Files/SceneMovement.cs)
     public void ForceCloseChoicePanelAndEnableGrid()
     {
         pendingIndex = -1;
-        if (choicePanel != null) choicePanel.SetActive(false);
-        SetGridInteractable(true);
-        RefreshGridVisuals();
+        choicePanel.SetActive(false);
+        SetGridActiveVisible(true, true);
     }
 
-    // -------------------- Tile Click Flow --------------------
+    // -------- Tile click -> ChoicePanel --------
     public void OnCellClicked(int index)
     {
-        if (state == null) return;
-
-        // Start/End are labels only (no question)
         if (index == state.startIndex || index == state.endIndex)
             return;
 
-        // If already answered and re-answer disabled, ignore
-        bool answered = state.playerMark[index] != -1;
-        if (answered && !allowReAnswer)
-            return;
-
         pendingIndex = index;
+        choiceQuestionText.text = state.prompts[index];
 
-        // Populate question text
-        if (choiceQuestionText != null)
-            choiceQuestionText.text = state.prompts[index];
-
-        // Show choice panel and disable grid interaction
-        if (choicePanel != null) choicePanel.SetActive(true);
-        SetGridInteractable(false);
+        // Disable/hide grid; show choice panel
+        SetGridActiveVisible(false, !hideGridWhenChoicePanelOpen);
+        choicePanel.SetActive(true);
     }
 
     private void ResolveChoice(bool choseSafe)
     {
-        if (state == null) return;
         if (pendingIndex < 0) return;
 
-        // Store player answer: 1 SAFE, 0 UNSAFE
-        state.playerMark[pendingIndex] = choseSafe ? 1 : 0;
-
-        // Reveal the tile (fog disappears after answering)
-        state.revealed[pendingIndex] = true;
-
+        int idx = pendingIndex;
         pendingIndex = -1;
 
-        // Hide choice panel and re-enable grid
-        if (choicePanel != null) choicePanel.SetActive(false);
-        SetGridInteractable(true);
+        // record mark
+        state.playerMark[idx] = choseSafe ? 1 : 0;
+
+        // reveal tile once answered
+        state.revealed[idx] = true;
+
+        // hide choice panel; re-enable/show grid
+        choicePanel.SetActive(false);
+        SetGridActiveVisible(true, true);
 
         SaveState();
         RefreshGridVisuals();
+        RecomputeAndDisplayPlayerCode();
     }
 
-    // -------------------- Grid UI Helpers --------------------
-    private void SetGridInteractable(bool on)
+    private void SetGridActiveVisible(bool active, bool visible)
     {
         if (gridCanvasGroup == null) return;
 
-        gridCanvasGroup.interactable = on;
-        gridCanvasGroup.blocksRaycasts = on;
-
-        // Optional: subtle dim when disabled
-        gridCanvasGroup.alpha = on ? 1f : 0.85f;
+        gridCanvasGroup.interactable = active;
+        gridCanvasGroup.blocksRaycasts = active;
+        gridCanvasGroup.alpha = visible ? 1f : 0f;
     }
 
+    // -------- Grid build/refresh --------
     private void BuildGrid()
     {
-        // Clear existing children
         for (int i = gridContainer.childCount - 1; i >= 0; i--)
             Destroy(gridContainer.GetChild(i).gameObject);
 
@@ -178,8 +133,6 @@ public class DirectionalLockManagerChoice : MonoBehaviour
 
     private void RefreshGridVisuals()
     {
-        if (state == null) return;
-
         int total = state.gridSize * state.gridSize;
 
         for (int i = 0; i < total; i++)
@@ -187,19 +140,19 @@ public class DirectionalLockManagerChoice : MonoBehaviour
             bool isStart = (i == state.startIndex);
             bool isEnd = (i == state.endIndex);
 
-            // Labels
+            // labels
             if (isStart) cells[i].SetLabel("START");
             else if (isEnd) cells[i].SetLabel("END");
             else cells[i].SetLabel("");
 
-            // Tile answered?
+            // answered?
             bool answered = state.playerMark[i] != -1;
 
-            // Fog stays on until SAFE/UNSAFE selected
-            bool showFog = !(isStart || isEnd) && !answered;
-            cells[i].SetFog(showFog);
+            // fog visible until answered (start/end never fogged)
+            bool fog = !(isStart || isEnd) && !answered;
+            cells[i].SetFog(fog);
 
-            // Mark icons appear after answering
+            // mark icon after answered
             if (!isStart && !isEnd && answered)
             {
                 bool safe = state.playerMark[i] == 1;
@@ -210,44 +163,142 @@ public class DirectionalLockManagerChoice : MonoBehaviour
                 cells[i].SetMark(null, false);
             }
 
-            // Interactable rules:
-            // - Start/End not clickable
-            // - When choice panel open, grid is blocked by CanvasGroup anyway, but keep consistent
-            bool clickable = !isStart && !isEnd;
-            if (!allowReAnswer && answered) clickable = false;
-
-            cells[i].SetInteractable(clickable);
+            // any non-start/end can be clicked (your requirement)
+            cells[i].SetInteractable(!isStart && !isEnd);
         }
     }
 
-    // -------------------- Save / Load --------------------
+    // -------- Player-derived code (from their SAFE marks) --------
+    private void RecomputeAndDisplayPlayerCode()
+    {
+        // Build graph nodes: START + END + all player SAFE tiles
+        int n = state.gridSize * state.gridSize;
+        bool[] included = new bool[n];
+        included[state.startIndex] = true;
+        included[state.endIndex] = true;
+
+        for (int i = 0; i < n; i++)
+            if (state.playerMark[i] == 1) included[i] = true;
+
+        // Determine if START->END connected, and whether graph has cycles in that component.
+        var parent = new Dictionary<int, int>();
+        bool connected = TryBuildParentTreeAndDetectCycle(included, state.startIndex, state.endIndex, state.gridSize, parent, out bool hasCycle);
+
+        if (!connected)
+        {
+            SetPlayerCodeUI("(no path)", "No SAFE path from START to END yet.");
+            state.playerDerivedCode = "";
+            state.playerCodeAmbiguous = false;
+            SaveState();
+            return;
+        }
+
+        if (hasCycle)
+        {
+            // multiple possible routes exist
+            SetPlayerCodeUI("(ambiguous)", "Multiple routes exist (cycle). Make your SAFE choices more precise.");
+            state.playerDerivedCode = "";
+            state.playerCodeAmbiguous = true;
+            SaveState();
+            return;
+        }
+
+        // Unique path exists (tree -> exactly one simple path)
+        List<int> path = ReconstructPath(parent, state.startIndex, state.endIndex);
+        string code = ComputeCodeFromPath(path, state.gridSize);
+
+        SetPlayerCodeUI(code, "Unique path found from your SAFE tiles.");
+        state.playerDerivedCode = code;
+        state.playerCodeAmbiguous = false;
+        SaveState();
+    }
+
+    private void SetPlayerCodeUI(string code, string status)
+    {
+        if (playerCodeText != null)
+            playerCodeText.text = code; //$"Code: {code}";
+
+        if (playerCodeStatusText != null)
+            playerCodeStatusText.text = status;
+    }
+
+    // BFS/DFS from start building a parent tree; detect cycles in reachable component.
+    private bool TryBuildParentTreeAndDetectCycle(
+        bool[] included, int start, int end, int size,
+        Dictionary<int, int> parent, out bool hasCycle)
+    {
+        hasCycle = false;
+        parent.Clear();
+
+        var visited = new bool[included.Length];
+        var stack = new Stack<int>();
+        stack.Push(start);
+        visited[start] = true;
+
+        while (stack.Count > 0)
+        {
+            int u = stack.Pop();
+
+            foreach (int v in Neighbors(u, size))
+            {
+                if (!included[v]) continue;
+
+                if (!visited[v])
+                {
+                    visited[v] = true;
+                    parent[v] = u;
+                    stack.Push(v);
+                }
+                else
+                {
+                    // If visited and v isn't the parent of u, we found a back-edge -> cycle
+                    if (parent.TryGetValue(u, out int pu))
+                    {
+                        if (v != pu) hasCycle = true;
+                    }
+                }
+            }
+        }
+
+        return visited[end];
+    }
+
+    private List<int> ReconstructPath(Dictionary<int, int> parent, int start, int end)
+    {
+        var path = new List<int>();
+        int cur = end;
+        path.Add(cur);
+
+        while (cur != start)
+        {
+            if (!parent.ContainsKey(cur))
+                break; // safety
+            cur = parent[cur];
+            path.Add(cur);
+        }
+
+        path.Reverse();
+        return path;
+    }
+
+    // -------- Save/Load --------
     private void LoadOrCreateState()
     {
         if (File.Exists(SavePath))
         {
-            string json = File.ReadAllText(SavePath);
-            state = JsonUtility.FromJson<DirectionalLockState>(json);
-
-            // Basic sanity fallback if something changed
-            if (state == null || state.gridSize <= 0)
-            {
-                Debug.LogWarning("[DirectionalLock] Save file invalid; generating new puzzle.");
-                state = GenerateNew(gridSize);
-                SaveState();
-            }
+            state = JsonUtility.FromJson<DirectionalLockState>(File.ReadAllText(SavePath));
             return;
         }
 
         state = GenerateNew(gridSize);
-        SaveState(); // write immediately so returning keeps same puzzle
+        SaveState();
     }
 
     private void SaveState()
     {
         try
         {
-            string json = JsonUtility.ToJson(state, true);
-            File.WriteAllText(SavePath, json);
+            File.WriteAllText(SavePath, JsonUtility.ToJson(state, true));
         }
         catch (Exception ex)
         {
@@ -255,27 +306,26 @@ public class DirectionalLockManagerChoice : MonoBehaviour
         }
     }
 
-    // -------------------- Generation --------------------
+    // -------- TRUE puzzle generation: ONE induced safe path, everything else unsafe --------
     private DirectionalLockState GenerateNew(int size)
     {
         var s = new DirectionalLockState();
         s.gridSize = size;
-
-        // Seed stored for reproducibility/debugging
         s.seed = (int)DateTime.Now.Ticks;
         Random.InitState(s.seed);
 
         int total = size * size;
 
-        // Choose START and a far END
         s.startIndex = Random.Range(0, total);
         s.endIndex = PickFarIndex(s.startIndex, size);
 
-        // Create a single path and compute expected code (for CodeCheck scene)
-        s.solutionPath = GeneratePath(s.startIndex, s.endIndex, size);
+        // *** key: induced path generation to prevent shortcut adjacencies ***
+        s.solutionPath = GenerateInducedPath(s.startIndex, s.endIndex, size);
+
+        // expectedCode from true path (used by CodeCheck) [1](https://univoftulsa-my.sharepoint.com/personal/bridget-kurr_utulsa_edu1/Documents/Microsoft%20Copilot%20Chat%20Files/PanelOperator.cs)
         s.expectedCode = ComputeCodeFromPath(s.solutionPath, size);
 
-        // Allocate per-cell lists
+        // Allocate arrays
         s.prompts = new List<string>(new string[total]);
         s.isSafeSolution = new List<bool>(new bool[total]);
         s.revealed = new List<bool>(new bool[total]);
@@ -284,22 +334,22 @@ public class DirectionalLockManagerChoice : MonoBehaviour
         for (int i = 0; i < total; i++)
         {
             s.revealed[i] = false;
-            s.playerMark[i] = -1; // unanswered
+            s.playerMark[i] = -1;
+            s.isSafeSolution[i] = false;
         }
 
-        // Start/End visible
         s.revealed[s.startIndex] = true;
         s.revealed[s.endIndex] = true;
 
-        // Determine solution set
+        // Safe tiles = exactly the induced path (including endpoints)
         var pathSet = new HashSet<int>(s.solutionPath);
-        for (int i = 0; i < total; i++)
-            s.isSafeSolution[i] = pathSet.Contains(i);
+        foreach (int idx in pathSet)
+            s.isSafeSolution[idx] = true;
 
-        // Build pools: Unsafe, Safe, Safer (Safer counts as SAFE for student)
+        // Build pools: SAFE (safe+safer) vs UNSAFE (everything else)
         var unsafePool = new List<QuestionBank.Q>();
-        var safePool = new List<QuestionBank.Q>();   // "Clearly safe"
-        var saferPool = new List<QuestionBank.Q>();  // "Safer/tricky safe"
+        var safePool = new List<QuestionBank.Q>();
+        var saferPool = new List<QuestionBank.Q>();
 
         foreach (var q in questionBank.questions)
         {
@@ -315,22 +365,20 @@ public class DirectionalLockManagerChoice : MonoBehaviour
         Shuffle(safePool);
         Shuffle(saferPool);
 
-        // Decide which PATH tiles get SAFER prompts
+        // Decide which path tiles (excluding endpoints) get SAFER prompts
         var pathTiles = new List<int>(s.solutionPath);
         pathTiles.Remove(s.startIndex);
         pathTiles.Remove(s.endIndex);
-
-        int targetSafer = Mathf.RoundToInt(pathTiles.Count * saferRateOnPath);
-        targetSafer = Mathf.Max(targetSafer, minSaferOnPath);
-        targetSafer = Mathf.Min(targetSafer, pathTiles.Count);
-        targetSafer = Mathf.Min(targetSafer, saferPool.Count);
-
         Shuffle(pathTiles);
+
+        int targetSafer = Mathf.Min(saferPool.Count, Mathf.Clamp(Mathf.RoundToInt(pathTiles.Count * 0.40f), 0, pathTiles.Count));
+        // guarantee at least 1 SAFER if available and path long enough
+        if (saferPool.Count > 0 && pathTiles.Count >= 3) targetSafer = Mathf.Max(targetSafer, 1);
+
         var saferTileSet = new HashSet<int>();
         for (int k = 0; k < targetSafer; k++)
             saferTileSet.Add(pathTiles[k]);
 
-        // Assign prompts
         int unsafeIdx = 0, safeIdx = 0, saferIdx = 0;
 
         for (int i = 0; i < total; i++)
@@ -343,19 +391,19 @@ public class DirectionalLockManagerChoice : MonoBehaviour
 
             if (pathSet.Contains(i))
             {
-                // On the correct path => SAFE for student (mix safe/safer)
+                // On true path => SAFE question (mix safe/safer)
                 if (saferTileSet.Contains(i) && saferPool.Count > 0)
                     s.prompts[i] = saferPool[saferIdx++ % saferPool.Count].text;
                 else if (safePool.Count > 0)
                     s.prompts[i] = safePool[safeIdx++ % safePool.Count].text;
-                else if (saferPool.Count > 0) // fallback
+                else if (saferPool.Count > 0)
                     s.prompts[i] = saferPool[saferIdx++ % saferPool.Count].text;
                 else
                     s.prompts[i] = "[Missing SAFE prompt]";
             }
             else
             {
-                // Off path => UNSAFE
+                // Everything else must be UNSAFE
                 if (unsafePool.Count > 0)
                     s.prompts[i] = unsafePool[unsafeIdx++ % unsafePool.Count].text;
                 else
@@ -363,36 +411,68 @@ public class DirectionalLockManagerChoice : MonoBehaviour
             }
         }
 
+        // Optional fields if you added them:
+        s.playerDerivedCode = "";
+        s.playerCodeAmbiguous = false;
+
         return s;
     }
 
-    // Pick an end index far from start (Manhattan distance heuristic)
-    private int PickFarIndex(int start, int size)
+    // --- Induced path generation: avoids shortcut adjacencies ---
+    private List<int> GenerateInducedPath(int start, int end, int size)
     {
-        int sr = start / size, sc = start % size;
-        int total = size * size;
-
-        int best = start;
-        int bestD = -1;
-
-        for (int t = 0; t < 30; t++)
+        for (int attempt = 0; attempt < 600; attempt++)
         {
-            int cand = Random.Range(0, total);
-            int cr = cand / size, cc = cand % size;
-            int d = Mathf.Abs(sr - cr) + Mathf.Abs(sc - cc);
-            if (d > bestD)
-            {
-                bestD = d;
-                best = cand;
-            }
+            var path = new List<int>();
+            var set = new HashSet<int>();
+
+            if (BuildInducedPathDFS(start, end, size, path, set))
+                return path;
         }
 
-        // fallback if it somehow matches start
-        return best == start ? (start + total / 2) % total : best;
+        // fallback (should be rare): use simple DFS path without induced constraint
+        return GenerateSimplePath(start, end, size);
     }
 
-    // Randomized DFS path generation (self-avoiding)
-    private List<int> GeneratePath(int start, int end, int size)
+    private bool BuildInducedPathDFS(int cur, int end, int size, List<int> path, HashSet<int> set)
+    {
+        path.Add(cur);
+        set.Add(cur);
+
+        if (cur == end)
+            return true;
+
+        var neigh = Neighbors(cur, size);
+        Shuffle(neigh);
+
+        foreach (int nxt in neigh)
+        {
+            if (set.Contains(nxt)) continue;
+
+            // induced constraint: nxt cannot touch any existing path node except cur
+            bool touchesOther = false;
+            foreach (int adj in Neighbors(nxt, size))
+            {
+                if (set.Contains(adj) && adj != cur)
+                {
+                    touchesOther = true;
+                    break;
+                }
+            }
+            if (touchesOther) continue;
+
+            if (BuildInducedPathDFS(nxt, end, size, path, set))
+                return true;
+        }
+
+        // backtrack
+        set.Remove(cur);
+        path.RemoveAt(path.Count - 1);
+        return false;
+    }
+
+    // fallback simple DFS (non-induced)
+    private List<int> GenerateSimplePath(int start, int end, int size)
     {
         for (int attempt = 0; attempt < 250; attempt++)
         {
@@ -404,15 +484,12 @@ public class DirectionalLockManagerChoice : MonoBehaviour
                 return path;
             }
         }
-
-        // fallback (rare)
         return new List<int> { start, end };
     }
 
     private bool DFS(int cur, int goal, int size, HashSet<int> visited, List<int> path)
     {
         visited.Add(cur);
-
         if (cur == goal)
         {
             path.Add(cur);
@@ -431,8 +508,26 @@ public class DirectionalLockManagerChoice : MonoBehaviour
                 return true;
             }
         }
-
         return false;
+    }
+
+    // --- helpers ---
+    private int PickFarIndex(int start, int size)
+    {
+        int sr = start / size, sc = start % size;
+        int total = size * size;
+
+        int best = start;
+        int bestD = -1;
+
+        for (int t = 0; t < 30; t++)
+        {
+            int cand = Random.Range(0, total);
+            int cr = cand / size, cc = cand % size;
+            int d = Mathf.Abs(sr - cr) + Mathf.Abs(sc - cc);
+            if (d > bestD) { bestD = d; best = cand; }
+        }
+        return best == start ? (start + total / 2) % total : best;
     }
 
     private List<int> Neighbors(int idx, int size)
@@ -452,22 +547,20 @@ public class DirectionalLockManagerChoice : MonoBehaviour
     private string ComputeCodeFromPath(List<int> path, int size)
     {
         var chars = new List<char>();
-
         for (int i = 0; i < path.Count - 1; i++)
-        {
-            int from = path[i];
-            int to = path[i + 1];
-
-            int fr = from / size, fc = from % size;
-            int tr = to / size, tc = to % size;
-
-            if (tr == fr - 1 && tc == fc) chars.Add('U');
-            else if (tr == fr + 1 && tc == fc) chars.Add('D');
-            else if (tr == fr && tc == fc - 1) chars.Add('L');
-            else if (tr == fr && tc == fc + 1) chars.Add('R');
-        }
-
+            chars.Add(DirectionChar(path[i], path[i + 1], size));
         return new string(chars.ToArray());
+    }
+
+    private char DirectionChar(int from, int to, int size)
+    {
+        int fr = from / size, fc = from % size;
+        int tr = to / size, tc = to % size;
+
+        if (tr == fr - 1 && tc == fc) return 'U';
+        if (tr == fr + 1 && tc == fc) return 'D';
+        if (tr == fr && tc == fc - 1) return 'L';
+        return 'R';
     }
 
     private void Shuffle<T>(IList<T> list)
@@ -478,7 +571,4 @@ public class DirectionalLockManagerChoice : MonoBehaviour
             (list[i], list[j]) = (list[j], list[i]);
         }
     }
-
-    // -------------------- Optional: public getters for CodeCheck debugging --------------------
-    public string GetExpectedCode() => state != null ? state.expectedCode : "";
 }

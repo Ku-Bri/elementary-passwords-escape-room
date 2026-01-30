@@ -10,6 +10,9 @@ public class DirectionalLockState
     public int startIndex;
     public int endIndex;
 
+    public string playerDerivedCode;
+    public bool playerCodeAmbiguous;
+
     // Correct path from start -> end inclusive (indices in order)
     public List<int> solutionPath = new List<int>();
 

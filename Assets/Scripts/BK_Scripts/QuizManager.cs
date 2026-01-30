@@ -21,7 +21,7 @@ public class QuizManagerTF : MonoBehaviour
     public GameObject correctPanel;       // shows briefly on correct answers
     public GameObject wrongPanel;         // shows briefly on wrong answers
 
-    private PanelOperator po;
+    private PanelOperatorRevised po;
 
     [Header("Navigation")]
     public SceneMovement sceneMovement;   // assign your existing SceneMovement (for LoadNextScene())
@@ -37,6 +37,11 @@ public class QuizManagerTF : MonoBehaviour
         public bool quizCompleted;
         public int rewardCode;  // or string, if you prefer
         public bool hideAnswerButtons;
+
+
+        public bool hasVisitedScene;
+        public int activeOverlayIndex; // 0/1/2 (none/instructions/hint)
+
     }
 
     private SaveData save = new SaveData();
@@ -46,64 +51,43 @@ public class QuizManagerTF : MonoBehaviour
 
     private void Start()
     {
-        po = FindObjectOfType<PanelOperator>(true);
+        po = FindObjectOfType<PanelOperatorRevised>(true);
 
         SetPanel(correctPanel, false);
         SetPanel(wrongPanel, false);
-        // Do NOT force questionPanel here; PanelOperator controls sceneObjects/questionPanel
-        // SetPanel(questionPanel, true);   // ← remove
-
         nextSceneButton.gameObject.SetActive(false);
 
         LoadState();
 
-        // If the quiz was already completed, show the code and stop here
-        if (save.quizCompleted || save.hideAnswerButtons)
+
+        // ----- FIRST VISIT BEHAVIOR -----
+        if (!save.hasVisitedScene)
         {
-            save.quizCompleted = true;
-            save.hideAnswerButtons = true;
+            // first time in this scene: show instructions
+            if (po != null) po.ForceShowInstructions();
+
+            save.hasVisitedScene = true;
+
+            // Optional: since overlay changed, store it too
+            if (po != null) save.activeOverlayIndex = po.GetActiveOverlayIndex();
+
+            SaveState();
+        }
+        else
+        {
+            // subsequent visits: restore last overlay state
+            if (po != null) po.RestoreActiveOverlayIndex(save.activeOverlayIndex);
+        }
+
+        // Existing "quiz completed" behavior
+        if (save.quizCompleted && save.hideAnswerButtons)
+        {
             ShowRewardCode();
             return;
         }
 
-        // Start a gate that waits for the first time *no* panels are active
-        StartCoroutine(WaitForPanelsThenStartOnce());
-    }
-
-    private System.Collections.IEnumerator WaitForPanelsThenStartOnce()
-    {
-        // Let all Awake/Start finish (PanelOperator sets initial visibility here)
-        yield return null;
-
-        var po = FindObjectOfType<PanelOperator>(true);
-        if (po == null)
-        {
-            // No PanelOperator? Start immediately.
-            BeginNewRun();
-            ShowQuestion();
-            hasStartedFirstRun = true;
-            yield break;
-        }
-
-        // Wait until ALL panels are inactive (first time only)
-        while (true)
-        {
-            bool anyActive = false;
-            for (int i = 0; i < po.isPanelActiveArray.Length; i++)
-            {
-                if (po.isPanelActiveArray[i]) { anyActive = true; break; }
-            }
-            if (!anyActive) break;  // instruction/hint dismissed the first time
-            yield return null;
-        }
-
-        if (!hasStartedFirstRun)
-        {
-            hasStartedFirstRun = true;
-            // PanelOperator will have unhidden sceneObjects (your QuestionPanel) already
-            BeginNewRun();
-            ShowQuestion();
-        }
+        BeginNewRun();
+        ShowQuestion();
     }
 
 
@@ -183,11 +167,10 @@ public class QuizManagerTF : MonoBehaviour
     private IEnumerator HandleCorrectThenAdvance()
     {
         // Hide question via PanelOperator
-        if (po != null) po.HideSceneObjects();
-        else SetPanel(questionPanel, false);
+        SetPanel(questionPanel, false);
 
         SetPanel(correctPanel, true);
-        yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(1.25f);
         SetPanel(correctPanel, false);
 
         currentIndex++;
@@ -199,8 +182,7 @@ public class QuizManagerTF : MonoBehaviour
         else
         {
             // Show question via PanelOperator
-            if (po != null) po.UnhideSceneObjects();
-            else SetPanel(questionPanel, true);
+            SetPanel(questionPanel, true);
 
             ShowQuestion();
         }
@@ -209,18 +191,16 @@ public class QuizManagerTF : MonoBehaviour
     private IEnumerator HandleWrongThenRestart()
     {
         // Hide question via PanelOperator
-        if (po != null) po.HideSceneObjects();
-        else SetPanel(questionPanel, false);
+        SetPanel(questionPanel, false);
 
         SetPanel(wrongPanel, true);
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(1.5f);
         SetPanel(wrongPanel, false);
 
         BeginNewRun();
 
         // Show question via PanelOperator
-        if (po != null) po.UnhideSceneObjects();
-        else SetPanel(questionPanel, true);
+        SetPanel(questionPanel, true);
 
         ShowQuestion();
     }
@@ -260,6 +240,9 @@ public class QuizManagerTF : MonoBehaviour
     {
         try
         {
+            if (po != null)
+                save.activeOverlayIndex = po.GetActiveOverlayIndex();
+
             var json = JsonUtility.ToJson(save, true);
             File.WriteAllText(SavePath, json);
         }
@@ -267,6 +250,7 @@ public class QuizManagerTF : MonoBehaviour
         {
             Debug.LogWarning($"[QuizManagerTF] Save failed: {ex.Message}");
         }
+
     }
 
     private void LoadState()
