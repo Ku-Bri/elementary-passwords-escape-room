@@ -85,8 +85,8 @@ public class PasswordManager1 : MonoBehaviour
             scenePreviouslyLoaded = false;
             userHasAddedPasswords = false;
             // Your original UI setup
-            textList.text = "<size=50><align=\"center\">_SECURED PASSWORDS_</align>\n\n";
-            passcodes.text = "<size=45><align=\"center\">\n\nPASSCODES</align>\n";
+            textList.text = "<align=\"center\">_SECURED PASSWORDS_</align>\n\n";
+            passcodes.text = "<align=\"center\">\n\nPASSCODES</align>\n";
             passcodesObject.SetActive(false);
         }
 
@@ -104,9 +104,9 @@ public class PasswordManager1 : MonoBehaviour
         code2 = Random.Range(1000, 9999);
         code3 = Random.Range(1000, 9999);
         passcodes.text +=
-                $"<size=45><align=\"center\">Set1</align></size>\n<size=35><align=\"center\">{code1}</align></size>\n\n" +
-                $"\n<size=45><align=\"center\">Set2</align></size>\n<size=35><align=\"center\">{code2}</align></size>\n\n" +
-                $"\n\n<size=45><align=\"center\">Set3</align></size>\n<size=35><align=\"center\">{code3}</align></size>";
+                $"<align=\"center\">Set1</align>\n<align=\"center\">{code1}</align>\n\n" +
+                $"\n<align=\"center\">Set2</align>\n<align=\"center\">{code2}</align>\n\n" +
+                $"\n\n<align=\"center\">Set3</align>\n<align=\"center\">{code3}</align>";
     }
 
     // ---------- Populate UI ----------
@@ -119,10 +119,10 @@ public class PasswordManager1 : MonoBehaviour
         pm.Add(password);
 
         textList.text +=
-            "<size=45>Set " + (slotIndex + 1) + "</size>\n" +
-            "<size=35>" + website + "</size>\n" +
-            "<size=35>" + username + "</size>\n" +
-            "<size=35>" + password + "</size>\n\n";
+            "Set " + (slotIndex + 1) + "\n" +
+             website  + "\n" +
+             username  + "\n" +
+             password + "\n\n";
 
         slotIndex++;
 
