@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff7ee3663a0510b46877b1acae28ac1d, type: 3}
+  m_Name: QuestionSet
+  m_EditorClassIdentifier: 
+  questions:
+  - questionText: Personally Identifiable Information (PII) includes your name and
+      phone number.
+    correctAnswer: 1
+  - questionText: It's safe to share your Social Security number on social media
+      if your account is private.
+    correctAnswer: 0
+  - questionText: "Protecting your PII is only important when you\u2019re using public
+      Wi-Fi. "
+    correctAnswer: 0
+  - questionText: All PII is equally sensitive; there's no difference between them.
+    correctAnswer: 0
+  - questionText: You should think twice before sharing your birthdate online.
+    correctAnswer: 1
+  - questionText: Companies never misuse the PII they collect from users.
+    correctAnswer: 0
+  - questionText: Identity theft can happen if someone gains access to your PII.
+    correctAnswer: 1
+  - questionText: 'PII does not include your email address. '
+    correctAnswer: 0
+  - questionText: Using strong passwords can help protect your PII.
+    correctAnswer: 1
+  - questionText: There are laws that specifically protect PII.
+    correctAnswer: 1
+  - questionText: All apps and websites that ask for your PII have to explain why
+      they need it.
+    correctAnswer: 0
+  - questionText: Keeping your software up to date can help protect your PII.
+    correctAnswer: 1
+  - questionText: 'Once your PII is online, you can easily remove it. '
+    correctAnswer: 0
+  - questionText: Sharing your location on social media can put your PII at risk.
+    correctAnswer: 1
+  - questionText: Children under 13 can legally provide personal information to websites
+      without parental consent.
+    correctAnswer: 0
+  - questionText: Sharing your date of birth online is considered sharing Personally
+      Identifiable Information (PII).
+    correctAnswer: 1
+  - questionText: Children under 13 can legally provide personal information to websites
+      without parental consent.
+    correctAnswer: 0
+  - questionText: It is okay to share your address with an online friend.
+    correctAnswer: 0
+  - questionText: It is okay to talk about a sport or celebrity you like with an
+      online friend.
+    correctAnswer: 1
+  - questionText: It is okay to tell your first name to an online friend.
+    correctAnswer: 1
+  - questionText: You never really know who you're talking to online.
+    correctAnswer: 1
+  - questionText: Your date of birth is private information.
+    correctAnswer: 1
+  - questionText: Your phone number is personal information.
+    correctAnswer: 1
+  - questionText: Your full name is private information.
+    correctAnswer: 1

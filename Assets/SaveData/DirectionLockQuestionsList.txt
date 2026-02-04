@@ -1,0 +1,100 @@
+
+# UNSAFE (30)  
+1. What’s your full name  
+2. What’s your exact birthdate  
+3. What’s your home address  
+4. What city or neighborhood do you live in  
+5. What school do you go to  
+6. What’s your phone number  
+7. What’s your student ID number  
+8. What’s your locker number  
+9. What’s your homeroom teacher’s name  
+10. What are your parents’ full names  
+11. What was the name of your first pet  
+12. What street did you grow up on  
+13. What’s your mother’s maiden name  
+14. What’s your favorite teacher’s name  
+15. What’s your best friend’s full name  
+16. What was your favorite childhood toy  
+17. What hospital were you born in  
+18. What’s your favorite local restaurant  
+19. What’s your username for school or gaming accounts  
+20. What’s your favorite sports team (if it reveals your location)  
+21. When will you be home alone  
+22. What time do you leave for school  
+23. Where are you right now  
+24. Are your parents out of town  
+25. What time do your parents get home  
+26. When is your family going on vacation  
+27. Do you walk to school or get dropped off  
+28. What after‑school activities do you attend and where  
+29. What days are you usually home by yourself  
+30. What bus route do you take  
+
+---
+
+# SAFER (30)
+1. What’s your first name  
+2. What month is your birthday in  
+3. What’s your favorite type of place to visit in your city  
+4. What’s a city you’d love to visit someday  
+5. What’s your favorite school subject  
+6. What’s the best way you like to communicate with friends  
+7. What’s your favorite school lunch item  
+8. What color would you paint a locker if you could  
+9. What’s a subject you enjoy learning about  
+10. What’s a hobby someone in your family enjoys  
+11. What’s your favorite type of animal  
+12. What’s your favorite type of street to walk on  
+13. What’s a last name you think sounds cool in a story  
+14. What’s a subject you think is taught really well  
+15. What’s something you like to do with friends  
+16. What’s a toy or game you think is fun today  
+17. What’s something interesting about the city or state you were born in  
+18. What’s your favorite type of food  
+19. What’s a username style you think is fun  
+20. What’s a sport you enjoy watching or playing  
+21. What’s your favorite thing to do to relax  
+22. What’s your favorite part of your morning routine  
+23. What’s a place you enjoy spending time  
+24. What’s something fun you like to do with your family  
+25. What’s your favorite time of day  
+26. What’s a place you’d love to travel someday  
+27. How do you prefer to get around town in general  
+28. What’s an activity you enjoy doing after school  
+29. What’s your favorite day of the week  
+30. What’s your favorite way to pass time on a ride  
+
+---
+
+# SAFE (30)  
+1. What’s your favorite movie genre  
+2. What’s your favorite snack  
+3. What hobbies do you enjoy  
+4. What’s your favorite type of music  
+5. What’s a book you enjoyed recently  
+6. What’s your favorite video game  
+7. What’s your favorite animal  
+8. What’s your favorite season  
+9. What’s your favorite color  
+10. What’s your favorite ice cream flavor  
+11. Which superhero would you want to be  
+12. What’s your dream vacation destination  
+13. What sport do you like watching  
+14. What’s a fictional world you’d like to visit  
+15. What’s a skill you wish you had  
+16. What’s a movie you think everyone should watch  
+17. What’s a food you think is overrated  
+18. What’s a trend you don’t understand  
+19. Do you prefer mornings or evenings  
+20. What’s your favorite holiday  
+21. What’s your favorite type of weather  
+22. What’s your favorite board game  
+23. What’s a talent you’re proud of  
+24. What’s your favorite dessert  
+25. What’s your favorite cartoon character  
+26. What’s your favorite thing to do on weekends  
+27. What’s a song you’ve had stuck in your head  
+28. What’s your favorite fictional villain  
+29. What’s your favorite outdoor activity  
+30. What’s your favorite way to celebrate something exciting  

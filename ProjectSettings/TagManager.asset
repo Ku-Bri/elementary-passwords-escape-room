@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Canvas
+  - NavBar
+  - PasswordManager
+  - StickyNote
+  - .txt
+  - Notebook
   layers:
   - Default
   - TransparentFX

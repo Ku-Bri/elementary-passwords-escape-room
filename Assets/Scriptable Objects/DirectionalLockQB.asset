@@ -1,0 +1,196 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a66da7b5a7ec4a34494ea415c3ba8061, type: 3}
+  m_Name: DirectionalLockQB
+  m_EditorClassIdentifier: 
+  questions:
+  - text: "What\u2019s your full name?"
+    bucket: 0
+  - text: "What\u2019s your exact birthdate?"
+    bucket: 0
+  - text: "What\u2019s your home address?"
+    bucket: 0
+  - text: What city or neighborhood do you live in?
+    bucket: 0
+  - text: What school do you go to?
+    bucket: 0
+  - text: "What\u2019s your phone number?"
+    bucket: 0
+  - text: "What\u2019s your student ID number?"
+    bucket: 0
+  - text: "What\u2019s your locker number?"
+    bucket: 0
+  - text: "What\u2019s your homeroom teacher\u2019s name?"
+    bucket: 0
+  - text: "What are your parents\u2019 full names?"
+    bucket: 0
+  - text: What was the name of your first pet?
+    bucket: 0
+  - text: What street did you grow up on?
+    bucket: 0
+  - text: "What\u2019s your mother\u2019s maiden name?"
+    bucket: 0
+  - text: "What\u2019s your favorite teacher\u2019s name?"
+    bucket: 0
+  - text: "What\u2019s your best friend\u2019s full name?"
+    bucket: 0
+  - text: What was your favorite childhood toy?
+    bucket: 1
+  - text: What hospital were you born in?
+    bucket: 0
+  - text: "What\u2019s your favorite local restaurant?"
+    bucket: 0
+  - text: "What\u2019s your username for school or gaming accounts?"
+    bucket: 0
+  - text: "What\u2019s your favorite sports team (if it reveals your location)?"
+    bucket: 0
+  - text: When will you be home alone?
+    bucket: 0
+  - text: What time do you leave for school?
+    bucket: 0
+  - text: Where are you right now?
+    bucket: 0
+  - text: Are your parents out of town?
+    bucket: 0
+  - text: What time do your parents get home?
+    bucket: 0
+  - text: When is your family going on vacation?
+    bucket: 0
+  - text: Do you walk to school or get dropped off?
+    bucket: 0
+  - text: "What after\u2011school activities do you attend and where?"
+    bucket: 0
+  - text: What days are you usually home by yourself?
+    bucket: 0
+  - text: What bus route do you take?
+    bucket: 0
+  - text: "What\u2019s your first name?"
+    bucket: 2
+  - text: What month is your birthday in?
+    bucket: 2
+  - text: "What\u2019s your favorite type of place to visit in your city?"
+    bucket: 2
+  - text: "What\u2019s a city you\u2019d love to visit someday?"
+    bucket: 2
+  - text: "What\u2019s your favorite school subject?"
+    bucket: 2
+  - text: "What\u2019s the best way you like to communicate with friends?"
+    bucket: 2
+  - text: "What\u2019s your favorite school lunch item?"
+    bucket: 2
+  - text: What color would you paint a locker if you could?
+    bucket: 2
+  - text: "What\u2019s a subject you enjoy learning about?"
+    bucket: 2
+  - text: "What\u2019s a hobby someone in your family enjoys?"
+    bucket: 2
+  - text: "What\u2019s your favorite type of animal?"
+    bucket: 2
+  - text: Do you ride your bike around town?
+    bucket: 2
+  - text: "What\u2019s a last name you think sounds cool in a story?"
+    bucket: 2
+  - text: "What\u2019s a subject you think is taught really well?"
+    bucket: 2
+  - text: "What\u2019s something you like to do with friends?"
+    bucket: 2
+  - text: "What\u2019s a toy or game you think is fun today?"
+    bucket: 2
+  - text: "What\u2019s something interesting about the city or state you were born
+      in?"
+    bucket: 2
+  - text: "What\u2019s your favorite type of food?"
+    bucket: 2
+  - text: What is your favorite gaming platform?
+    bucket: 2
+  - text: "What\u2019s a sport you enjoy watching or playing?"
+    bucket: 2
+  - text: "What\u2019s your favorite thing to do to relax?"
+    bucket: 2
+  - text: "What\u2019s your favorite part of your morning routine?"
+    bucket: 2
+  - text: "What\u2019s a place you enjoy spending time?"
+    bucket: 0
+  - text: "What\u2019s something fun you like to do with your family?"
+    bucket: 2
+  - text: "What\u2019s your favorite time of day?"
+    bucket: 2
+  - text: "What\u2019s a place you\u2019d love to travel someday?"
+    bucket: 2
+  - text: How do you prefer to get around town in general?
+    bucket: 2
+  - text: "What\u2019s an activity you enjoy doing after school?"
+    bucket: 2
+  - text: "What\u2019s your favorite day of the week?"
+    bucket: 2
+  - text: "What\u2019s your favorite way to pass time on a long drive?"
+    bucket: 2
+  - text: "What\u2019s your favorite movie genre?"
+    bucket: 1
+  - text: "What\u2019s your favorite snack?"
+    bucket: 1
+  - text: What hobbies do you enjoy?
+    bucket: 1
+  - text: "What\u2019s your favorite type of music?"
+    bucket: 1
+  - text: "What\u2019s a book you enjoyed recently?"
+    bucket: 1
+  - text: "What\u2019s your favorite video game?"
+    bucket: 1
+  - text: "What\u2019s your favorite animal?"
+    bucket: 1
+  - text: "What\u2019s your favorite season?"
+    bucket: 1
+  - text: "What\u2019s your favorite color?"
+    bucket: 1
+  - text: "What\u2019s your favorite ice cream flavor?"
+    bucket: 1
+  - text: Which superhero would you want to be?
+    bucket: 1
+  - text: "What\u2019s your dream vacation destination?"
+    bucket: 1
+  - text: What sport do you like watching?
+    bucket: 1
+  - text: "What\u2019s a fictional world you\u2019d like to visit?"
+    bucket: 1
+  - text: "What\u2019s a skill you wish you had?"
+    bucket: 1
+  - text: "What\u2019s a movie you think everyone should watch?"
+    bucket: 1
+  - text: "What\u2019s a food you think is overrated?"
+    bucket: 1
+  - text: "What\u2019s a trend you don\u2019t understand?"
+    bucket: 1
+  - text: Do you prefer mornings or evenings?
+    bucket: 1
+  - text: "What\u2019s your favorite holiday?"
+    bucket: 1
+  - text: "What\u2019s your favorite type of weather?"
+    bucket: 1
+  - text: "What\u2019s your favorite board game?"
+    bucket: 1
+  - text: "What\u2019s a talent you\u2019re proud of?"
+    bucket: 1
+  - text: "What\u2019s your favorite dessert?"
+    bucket: 1
+  - text: "What\u2019s your favorite cartoon character?"
+    bucket: 1
+  - text: "What\u2019s your favorite thing to do on weekends?"
+    bucket: 1
+  - text: "What\u2019s a song you\u2019ve had stuck in your head?"
+    bucket: 1
+  - text: "What\u2019s your favorite fictional villain?"
+    bucket: 1
+  - text: "What\u2019s your favorite outdoor activity?"
+    bucket: 1
+  - text: "What\u2019s your favorite way to celebrate something exciting?"
+    bucket: 1
