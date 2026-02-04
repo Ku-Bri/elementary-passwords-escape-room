@@ -24738,6 +24738,7 @@ GameObject:
   - component: {fileID: 1332919666}
   - component: {fileID: 1332919670}
   - component: {fileID: 1332919671}
+  - component: {fileID: 1332919672}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -24858,7 +24859,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1332919665}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc7bbe4c22068eb40b0b6d32f8da5b6c, type: 3}
   m_Name: 
@@ -24868,6 +24869,22 @@ MonoBehaviour:
   - {fileID: 1594157359}
   isPanelActiveArray: 0100
   sceneObjects: {fileID: 652046865}
+--- !u!114 &1332919672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1332919665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb945dbda4702e64283c16520dc65684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  instructionsPanel: {fileID: 611102177}
+  hintPanel: {fileID: 1594157359}
+  questionsPanel: {fileID: 652046865}
+  activeOverlay: 1
 --- !u!1 &1368875867
 GameObject:
   m_ObjectHideFlags: 0

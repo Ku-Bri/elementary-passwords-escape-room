@@ -29,7 +29,8 @@ public class DirectionalLockManagerChoice : MonoBehaviour
     public Button unsafeButton;
 
     [Header("Code UI")]
-    public TMP_Text playerCodeText;           // shows derived code from player's current SAFE marks
+    //public TMP_Text playerCodeText;           // shows derived code from player's current SAFE marks
+    public TMP_InputField playerCodeText;
     public TMP_Text playerCodeStatusText;     // optional: shows (no path / ambiguous / unique)
 
     [Header("Icons")]
@@ -216,10 +217,15 @@ public class DirectionalLockManagerChoice : MonoBehaviour
     private void SetPlayerCodeUI(string code, string status)
     {
         if (playerCodeText != null)
+        {
             playerCodeText.text = code; //$"Code: {code}";
-
+            Debug.Log(playerCodeText.text + " should be set like " + code);
+        }
         if (playerCodeStatusText != null)
+        {
             playerCodeStatusText.text = status;
+        }
+            
     }
 
     // BFS/DFS from start building a parent tree; detect cycles in reachable component.

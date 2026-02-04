@@ -253,6 +253,11 @@ public class QuizManagerTF : MonoBehaviour
 
     }
 
+    private void OnDisable()
+    {
+        SaveState();
+    }
+
     private void LoadState()
     {
         try
