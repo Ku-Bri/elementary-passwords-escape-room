@@ -14,6 +14,11 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     [SerializeField] private GameObject EventSystem;
 
+
+    // Prevent double-quit / double-delete if multiple hooks fire
+    private bool quitTriggered = false; 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +37,12 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Ctrl+Q (either Ctrl key + Q)
+        if (!quitTriggered && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.Q))
+        {
+            QuitAndDelete(); 
+        }
+
 
     }
 
@@ -89,6 +100,26 @@ public class GameManager : MonoBehaviour
         SaveQuitGuard.IsQuitting = true;
         TryDeleteSaveFile();
     }
+
+
+    // Central quit helper used by Ctrl+Q and (optionally) menu buttons
+    public void QuitAndDelete() 
+    {
+        if (quitTriggered) return;   // safety
+        quitTriggered = true;        // prevent double-fire
+
+        SaveQuitGuard.IsQuitting = true;
+        TryDeleteSaveFile();
+
+#if UNITY_EDITOR
+        // In Editor, stop play mode
+        EditorApplication.isPlaying = false;
+#else
+        // In builds, quit the app
+        Application.Quit();
+#endif
+    }
+
 
     private void TryDeleteSaveFile()
     {

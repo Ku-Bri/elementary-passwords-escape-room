@@ -1,44 +1,48 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PasswordStrength1 : MonoBehaviour
 {
     [Header("Data Source (ScriptableObject)")]
-    [SerializeField] private QuestionData passwordSet;    // Drag your QuestionData asset (Password Set Rm 5)
+    [SerializeField] private QuestionData passwordSet;        // Drag your QuestionData asset (Password Set Rm 5)
 
-    [Header("UI: Core")]
-    [SerializeField] private TMP_Text passwordResultText; // Cryptext label that starts with underscores (e.g., "______")
-    [SerializeField] private TMP_Text option0Text;        // Button 0 label (TMP)
-    [SerializeField] private TMP_Text option1Text;        // Button 1 label (TMP)
-    [SerializeField] private GameObject passwordSelectionPanel; // Parent for the two option buttons/labels
+    [Header("UI: Core Game")]
+    [SerializeField] private TMP_Text passwordResultText;     // Cryptext label; starts with underscores, e.g., "______"
+    [SerializeField] private TMP_Text option0Text;            // TMP on Option 0 button
+    [SerializeField] private TMP_Text option1Text;            // TMP on Option 1 button
+    [SerializeField] private GameObject passwordSelectionPanel; // Parent of the two option buttons/labels
 
     [Header("UI: Feedback Panels")]
-    [SerializeField] private GameObject correctPanel;     // Shown briefly after a correct answer
-    [SerializeField] private GameObject wrongPanel;       // Shown briefly after a wrong answer
-    [SerializeField] private TMP_Text wrongPanelMessage;  // Optional: message text inside wrongPanel (remaining attempts, reset text)
-    [SerializeField] private GameObject continueButton;   // Enabled when 'G' is visible in the cryptext (kept from your original flow)
+    [SerializeField] private GameObject correctPanel;         // Briefly shown after a correct answer
+    [SerializeField] private GameObject wrongPanel;           // Briefly shown after a wrong answer
+    [SerializeField] private TMP_Text wrongPanelMessage;      // Optional text inside wrongPanel
+
+    // NOTE: Info panels exist in your scene, but per request we do not toggle them here anymore.
+    // [Header("UI: Info Panels (Toggles)")]
+    // [SerializeField] private GameObject instructionsPanel; // (Removed usage)
+    // [SerializeField] private GameObject hintPanel;         // (Removed usage)
 
     [Header("Covers (Per-Letter)")]
     [Tooltip("Parent object containing one cover image per passcode slot.")]
     [SerializeField] private GameObject codeCoverGroup;
     [Tooltip("CanvasGroups for each cover (left-to-right). Count should match passcode length.")]
     [SerializeField] private List<CanvasGroup> codeCoverSlots = new List<CanvasGroup>();
+    private bool gameCompleted = false;
 
     [Header("Blink Settings")]
     [SerializeField, Range(0f, 1f)] private float blinkMinAlpha = 0.35f;
     [SerializeField, Range(0f, 1f)] private float blinkMaxAlpha = 1.00f;
-    [SerializeField, Range(0.1f, 10f)] private float blinkSpeed = 4f;  // blink cycles/sec (roughly)
+    [SerializeField, Range(0.1f, 10f)] private float blinkSpeed = 4f;
 
     [Header("Gameplay")]
-    [SerializeField] private string passcode = "STRONG";  // Revealed one letter per correct answer
-    [SerializeField] private int maxWrong = 3;            // After 3 wrong, reset progress
+    [SerializeField] private string passcode = "STRONG";      // Revealed one letter per correct answer
+    [SerializeField] private int maxWrong = 3;                // After 3 wrong, reset progress
 
-    [Header("Timings (seconds)")]
+    [Header("Panel Durations (seconds)")]
     [SerializeField, Min(0.1f)] private float correctPanelDuration = 0.9f;
     [SerializeField, Min(0.1f)] private float wrongPanelDuration = 1.4f;
 
@@ -52,101 +56,128 @@ public class PasswordStrength1 : MonoBehaviour
     private readonly List<TrueFalsQuestion> strongAll = new();
     private readonly List<TrueFalsQuestion> weakAll = new();
 
-    // queues (shuffled, then dequeued, refilled when empty)
+    // queues (shuffled, then dequeued; refilled when empty)
     private readonly Queue<TrueFalsQuestion> strongQ = new();
     private readonly Queue<TrueFalsQuestion> weakQ = new();
 
     private System.Random rng;
 
-    // blinking
+    // blinking / covers
     private int activeBlinkIndex = -1;
     private Coroutine blinkRoutine;
 
-    // reveal toggle (covers hidden while true)
-    private bool coversHiddenViaReveal = false;
+    // reveal: whether the covers are hidden by the Reveal Code toggle
+    private bool coversHiddenViaReveal = false; // start shown; Reveal toggles to hide
+
+    // (Removed) Whether a feedback panel is showing — we no longer gate by this in this script.
+    // private bool isFeedbackActive = false;
 
     private void Awake()
     {
         rng = new System.Random();
 
-        if (passwordSet == null)
-            Debug.LogError("PasswordStrength1: Missing QuestionData ScriptableObject reference.");
-
-        // Default UI states
-        if (continueButton != null) continueButton.SetActive(false);
+        // CHANGED: Only control Correct/Wrong panels here. Do not toggle Instructions/Hint/Selection.
         if (correctPanel != null) correctPanel.SetActive(false);
         if (wrongPanel != null) wrongPanel.SetActive(false);
 
-        // Selection panel should be visible at start
-        if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(true);
-
-        // Covers start hidden; only the active slot will appear when solving.
-        if (codeCoverGroup != null) codeCoverGroup.SetActive(true);  // parent is active, but individual slots control visibility
+        // Covers group exists but starts hidden; Reveal Code button will show/hide it
+        if (codeCoverGroup != null) codeCoverGroup.SetActive(true);
+        //HideAllCovers();
     }
 
     private void Start()
     {
-        // Initialize cryptext with underscores
-        var underscores = new string('_', passcode.Length);
+        /* // Cryptext init
+         var underscores = new string('_', passcode.Length);
+         if (passwordResultText != null)
+         {
+             if (string.IsNullOrWhiteSpace(passwordResultText.text))
+                 passwordResultText.text = underscores;
+             currentPasscode = passwordResultText.text;
+         }
+         else
+         {
+             currentPasscode = underscores;
+         }*/
+
+        // Cryptext init — start EMPTY, no underscores
+        currentPasscode = string.Empty;
         if (passwordResultText != null)
-        {
-            if (string.IsNullOrWhiteSpace(passwordResultText.text))
-                passwordResultText.text = underscores;
-            currentPasscode = passwordResultText.text;
-        }
-        else
-        {
-            currentPasscode = underscores;
-        }
+            passwordResultText.text = currentPasscode;
 
         BuildPoolsFromSO();
         RefillQueuesIfNeeded();
-        NextRound();
+        NextRound(); // prepares the first pair
 
-        // Covers: invisible until solving a slot. Start with slot 0 only (blinking).
-        InitCoversHiddenExceptActive(0);
-    }
+        // Covers start enabled; show past=solid, current=blinking, future=hidden
+        if (codeCoverGroup != null) codeCoverGroup.SetActive(true);
+        InitCoversHiddenExceptActive(letterNum);
 
-    private void Update()
-    {
-        // Keep original behavior: enable Continue when 'G' is visible
-        if (continueButton != null && currentPasscode.Contains("G"))
-            continueButton.SetActive(true);
+        // CHANGED: Removed any top-level panel visibility control.
+        // RefreshTopLevelPanels();
     }
 
     // ==================== PUBLIC UI HOOKS ====================
 
-    /// <summary>Buttons call this: Option 0 -> PushOption(0), Option 1 -> PushOption(1)</summary>
+    /// <summary>Option buttons: Option 0 -> PushOption(0), Option 1 -> PushOption(1)</summary>
     public void PushOption(int optionIndex)
     {
-        // ignore clicks if selection panel not visible (during feedback)
+
+        if (gameCompleted) return;
+
+        // Read-only check is fine; we no longer toggle this panel in this script.
         if (passwordSelectionPanel != null && !passwordSelectionPanel.activeSelf) return;
 
         if (optionIndex == correctOptionIndex) HandleCorrect();
         else HandleIncorrect();
     }
 
-    /// <summary>Reveal Code button: toggles cover visibility</summary>
+    /// <summary>Reveal Code button: toggles the COVER visibility only (not the selection panel)</summary>
     public void OnRevealCode()
     {
         coversHiddenViaReveal = !coversHiddenViaReveal;
 
         if (codeCoverGroup == null) return;
 
-        if (coversHiddenViaReveal)
+        // CHANGED: Do not gate on feedback anymore; overlays sit on top.
+        bool canShowCovers = !coversHiddenViaReveal &&
+                             (passwordSelectionPanel == null || passwordSelectionPanel.activeSelf);
+
+        codeCoverGroup.SetActive(canShowCovers);
+
+        if (canShowCovers)
         {
-            // Hide entire cover group
-            StopBlink();
-            codeCoverGroup.SetActive(false);
+            if (gameCompleted)
+            {
+                for (int i = 0; i < codeCoverSlots.Count; i++)
+                {
+                    var cg = codeCoverSlots[i];
+                    if (cg != null)
+                    {
+                        cg.gameObject.SetActive(true);
+                        cg.alpha = 1f;
+                    }
+                }
+                StopBlink();
+                return; // do not blink once game is completed
+            }
+            else
+            {
+                // Normal play: show past solid, current blinking, future hidden
+                InitCoversHiddenExceptActive(letterNum);
+            }
         }
         else
         {
-            // Show group and re-apply visibility rules (only active + already-solved covers visible)
-            codeCoverGroup.SetActive(true);
-            RefreshAllCoverVisibility();
-            StartBlinkFor(letterNum); // resume blinking on the current slot
+            StopBlink();
+            HideAllCovers();
         }
+
     }
+
+    // (Removed) Info panel toggles per request:
+    // public void OnToggleInstructions() {...}
+    // public void OnToggleHint() {...}
 
     // ==================== ROUND FLOW ====================
 
@@ -158,10 +189,10 @@ public class PasswordStrength1 : MonoBehaviour
         var strong = strongQ.Dequeue();
         var weak = weakQ.Dequeue();
 
-        // Random placement of strong
+        // Random placement of the strong answer
         correctOptionIndex = rng.Next(0, 2);
 
-        // Re-enable Auto Size so TMP recalculates for new texts
+        // Re-enable Auto Size for new content
         option0Text.enableAutoSizing = true;
         option1Text.enableAutoSizing = true;
 
@@ -176,28 +207,37 @@ public class PasswordStrength1 : MonoBehaviour
             option1Text.text = strong.questionText;
         }
 
-        // Hide any previous wrong banner
-        if (wrongPanel != null && wrongPanel.activeSelf)
-            wrongPanel.SetActive(false);
-
-        // After TMP lays out, sync both labels to the smaller auto-size
-        StartCoroutine(SyncOptionFontSizesNextFrame());
+        // Sync sizes only if selection is visible (otherwise we’ll sync next time it becomes visible)
+        if (passwordSelectionPanel == null || passwordSelectionPanel.activeSelf)
+            StartCoroutine(SyncOptionFontSizesNextFrame());
     }
 
     private void HandleCorrect()
     {
-        // Reveal next character by replacing the first underscore
+        /*// Reveal next character (replace first underscore)
         if (passwordResultText != null)
         {
             var regex = new Regex(Regex.Escape("_"));
             currentPasscode = regex.Replace(currentPasscode, passcode[letterNum].ToString(), 1);
             passwordResultText.text = currentPasscode;
+        }*/
+
+
+        // Safety guard—do nothing if already complete or index out of range
+        if (gameCompleted || letterNum >= passcode.Length) return;
+
+        // Append next letter with a leading space (no underscores at all)
+        if (passwordResultText != null)
+        {
+            // First letter = no leading space; subsequent letters = " " + letter
+            string next = passcode[letterNum].ToString();
+            currentPasscode = (letterNum == 0) ? next : $"{currentPasscode} {next}";
+            passwordResultText.text = currentPasscode;
         }
 
-        // Strike reset on correct
-        wrongCount = 0;
+        // CHANGED: Do NOT reset wrongCount on correct anymore.
+        // wrongCount = 0;  // <-- removed
 
-        // Covers: solidify revealed slot; make only next slot visible+blinking
         SolidifyCover(letterNum);
 
         bool finished = (letterNum >= passcode.Length - 1);
@@ -207,19 +247,45 @@ public class PasswordStrength1 : MonoBehaviour
             letterNum++;
             ShowCorrectFeedbackThen(() =>
             {
-                // After feedback: prepare next slot cover (only that one visible)
-                InitCoversHiddenExceptActive(letterNum);
+                // After feedback, if covers are visible, prep next blinking cover
+                if (codeCoverGroup != null && codeCoverGroup.activeSelf)
+                    InitCoversHiddenExceptActive(letterNum);
                 NextRound();
             });
         }
-        else
+        /*else
         {
-            // Last letter revealed
             ShowCorrectFeedbackThen(() =>
             {
+                // End state: do NOT toggle selection panel here per request.
                 StopBlink();
-                // Optional: leave selection hidden or enable Continue/etc.
-                if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false);
+                HideAllCovers();
+                // if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false); // removed
+            });
+        }*/
+        else
+        {
+
+            // Mark completion BEFORE showing feedback
+            gameCompleted = true;
+
+
+            ShowCorrectFeedbackThen(() =>
+            {
+                // Stop blinking after final letter; do NOT auto-hide covers.
+                StopBlink();
+
+                // Make all covers visible & solid (no blink)
+                for (int i = 0; i < codeCoverSlots.Count; i++)
+                {
+                    var cg = codeCoverSlots[i];
+                    if (cg != null)
+                    {
+                        cg.gameObject.SetActive(true);
+                        cg.alpha = 1f;
+                    }
+                }
+                // Do NOT call HideAllCovers(); the player can still toggle covers via Reveal Code.
             });
         }
     }
@@ -227,7 +293,6 @@ public class PasswordStrength1 : MonoBehaviour
     private void HandleIncorrect()
     {
         wrongCount++;
-
         bool willReset = (wrongCount >= maxWrong);
 
         ShowWrongFeedbackThen(willReset, () =>
@@ -235,11 +300,8 @@ public class PasswordStrength1 : MonoBehaviour
             if (willReset)
             {
                 ResetPasscodeProgress();
-                wrongCount = 0;
-                // Start over from slot 0
-                InitCoversHiddenExceptActive(0);
+                wrongCount = 0; // Reset only when maxWrong reached
             }
-            // After feedback (either normal wrong or after reset), show a brand-new pair
             NextRound();
         });
     }
@@ -248,32 +310,37 @@ public class PasswordStrength1 : MonoBehaviour
 
     private void ShowCorrectFeedbackThen(Action onDone)
     {
-        // Hide selection during feedback
-        if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false);
+        // CHANGED: Do NOT hide selection or covers during feedback; overlays simply appear on top.
+        // if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false); // removed
+        // StopBlink(); if (codeCoverGroup != null) codeCoverGroup.SetActive(false);   // removed
 
         if (correctPanel != null)
         {
             correctPanel.SetActive(true);
-            StartCoroutine(HidePanelAfter(correctPanel, correctPanelDuration, onDone));
+            StartCoroutine(HidePanelAfter(correctPanel, correctPanelDuration, () =>
+            {
+                correctPanel.SetActive(false);
+                // Do not toggle selection here
+                onDone?.Invoke();
+            }));
         }
         else
         {
-            // If no panel is set, just continue immediately
             onDone?.Invoke();
-            if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(true);
         }
     }
 
     private void ShowWrongFeedbackThen(bool willReset, Action onDone)
     {
-        // Hide selection during feedback
-        if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false);
+        // CHANGED: Do NOT hide selection or covers during feedback; overlays simply appear on top.
+        // if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(false); // removed
+        // StopBlink(); if (codeCoverGroup != null) codeCoverGroup.SetActive(false);   // removed
 
         if (wrongPanelMessage != null)
         {
             if (willReset)
             {
-                wrongPanelMessage.text = "Resetting resultsâ€¦";
+                wrongPanelMessage.text = "Resetting results…";
             }
             else
             {
@@ -287,15 +354,13 @@ public class PasswordStrength1 : MonoBehaviour
             wrongPanel.SetActive(true);
             StartCoroutine(HidePanelAfter(wrongPanel, wrongPanelDuration, () =>
             {
-                // After wrong feedback, re-show selection panel and continue
-                if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(true);
+                wrongPanel.SetActive(false);
+                // Do not toggle selection here
                 onDone?.Invoke();
             }));
         }
         else
         {
-            // No wrong panel assigned; proceed immediately
-            if (passwordSelectionPanel != null) passwordSelectionPanel.SetActive(true);
             onDone?.Invoke();
         }
     }
@@ -308,16 +373,7 @@ public class PasswordStrength1 : MonoBehaviour
             t += Time.unscaledDeltaTime;
             yield return null;
         }
-        if (panel != null) panel.SetActive(false);
-
         onDone?.Invoke();
-
-        // If this was the correct panel, bring selection back (unless finished)
-        if (panel == correctPanel && passwordSelectionPanel != null)
-        {
-            // Selection will be turned on by caller if needed (e.g., when not finished)
-            passwordSelectionPanel.SetActive(true);
-        }
     }
 
     // ==================== DATA MGMT ====================
@@ -357,48 +413,51 @@ public class PasswordStrength1 : MonoBehaviour
 
     // ==================== COVERS & BLINK ====================
 
+    /*private void PrepareCoversForStart()
+    {
+        if (codeCoverGroup == null) return;
+        // Covers start hidden; Reveal Code toggles visibility later.
+        HideAllCovers();
+        codeCoverGroup.SetActive(false);
+        coversHiddenViaReveal = true;
+    }*/
+
     /// <summary>
-    /// Make all covers invisible *except* the active index, which blinks.
-    /// Already solved slots stay visible and solid.
+    /// Make all covers invisible *except* the active index (blinking).
+    /// Already-solved slots -> visible & solid; future slots -> hidden.
     /// </summary>
     private void InitCoversHiddenExceptActive(int activeIndex)
     {
-        if (codeCoverGroup == null) return;
+        if (codeCoverGroup == null || !codeCoverGroup.activeSelf) return;
 
-        codeCoverGroup.SetActive(!coversHiddenViaReveal); // honor the Reveal toggle
-
-        // Solidify all previous (revealed) covers, hide future ones
         for (int i = 0; i < codeCoverSlots.Count; i++)
         {
             var cg = codeCoverSlots[i];
             if (cg == null) continue;
 
-            if (i < activeIndex)            // already revealed slots -> visible & solid
+            if (i < activeIndex)
             {
-                cg.gameObject.SetActive(!coversHiddenViaReveal);
-                cg.alpha = 1f;
+                cg.gameObject.SetActive(true);
+                cg.alpha = 1f;     // past: solid
             }
-            else if (i == activeIndex)      // current slot -> visible & blinking
+            else if (i == activeIndex)
             {
-                cg.gameObject.SetActive(!coversHiddenViaReveal);
-                cg.alpha = 1f; // will start blinking
+                cg.gameObject.SetActive(true);
+                cg.alpha = 1f;     // will blink
             }
-            else                            // future slots -> invisible (inactive)
+            else
             {
-                cg.gameObject.SetActive(false);
+                cg.gameObject.SetActive(false); // future: hidden
             }
         }
 
-        // Start blinking the active slot (if covers are shown)
-        if (!coversHiddenViaReveal) StartBlinkFor(activeIndex);
-        else StopBlink();
+        StartBlinkFor(activeIndex);
     }
 
-    private void RefreshAllCoverVisibility()
+    private void RefreshCoversIfVisible()
     {
-        if (codeCoverGroup == null) return;
+        if (codeCoverGroup == null || !codeCoverGroup.activeSelf) return;
 
-        // When covers are shown, previous slots solid, current visible (blinking), future hidden
         for (int i = 0; i < codeCoverSlots.Count; i++)
         {
             var cg = codeCoverSlots[i];
@@ -412,7 +471,7 @@ public class PasswordStrength1 : MonoBehaviour
             else if (i == letterNum)
             {
                 cg.gameObject.SetActive(true);
-                // alpha will be animated by blinking
+                // alpha animated by blink
             }
             else
             {
@@ -424,7 +483,6 @@ public class PasswordStrength1 : MonoBehaviour
     private void StartBlinkFor(int index)
     {
         StopBlink();
-        if (coversHiddenViaReveal) return;
         if (codeCoverGroup == null || !codeCoverGroup.activeSelf) return;
         if (index < 0 || index >= codeCoverSlots.Count) return;
 
@@ -445,8 +503,7 @@ public class PasswordStrength1 : MonoBehaviour
     private System.Collections.IEnumerator BlinkRoutine()
     {
         while (activeBlinkIndex >= 0 &&
-               codeCoverGroup != null && codeCoverGroup.activeSelf &&
-               !coversHiddenViaReveal)
+               codeCoverGroup != null && codeCoverGroup.activeSelf)
         {
             var cg = codeCoverSlots[activeBlinkIndex];
             if (cg != null)
@@ -460,34 +517,57 @@ public class PasswordStrength1 : MonoBehaviour
 
     private void SolidifyCover(int index)
     {
+        if (codeCoverGroup == null) return;
         if (index < 0 || index >= codeCoverSlots.Count) return;
+
         var cg = codeCoverSlots[index];
         if (cg != null)
         {
-            cg.gameObject.SetActive(!coversHiddenViaReveal);
+            cg.gameObject.SetActive(true);
             cg.alpha = 1f;
         }
         if (activeBlinkIndex == index) StopBlink();
     }
 
-    // ==================== CRYPTEXT RESET ====================
+    private void HideAllCovers()
+    {
+        for (int i = 0; i < codeCoverSlots.Count; i++)
+        {
+            var cg = codeCoverSlots[i];
+            if (cg == null) continue;
+            cg.gameObject.SetActive(false);
+        }
+        StopBlink();
+    }
 
     private void ResetPasscodeProgress()
     {
-        letterNum = 0;
+        /*letterNum = 0;
 
         var underscores = new string('_', passcode.Length);
         currentPasscode = underscores;
 
         if (passwordResultText != null)
             passwordResultText.text = currentPasscode;
+        */
 
-        if (continueButton != null)
-            continueButton.SetActive(false);
+        gameCompleted = false;  
+        letterNum = 0;
+        currentPasscode = string.Empty; // no underscores on reset either
+        if (passwordResultText != null)
+            passwordResultText.text = currentPasscode;
 
-        // Restart covers from slot 0 (invisible for future slots)
-        InitCoversHiddenExceptActive(0);
+
+        // If covers are visible, restart with slot 0 blinking; else keep hidden
+        if (codeCoverGroup != null && codeCoverGroup.activeSelf)
+            InitCoversHiddenExceptActive(0);
+        else
+            HideAllCovers();
     }
+
+    // ==================== TOP-LEVEL PANEL LOGIC ====================
+    // CHANGED: Entire top-level panel visibility management removed per request.
+    // private void RefreshTopLevelPanels() { ... }
 
     // ==================== OPTION TEXT CONSISTENCY ====================
 
