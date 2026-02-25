@@ -21,6 +21,8 @@ public class PasswordStrength1 : MonoBehaviour
     [SerializeField] private GameObject wrongPanel;           // Briefly shown after a wrong answer
     [SerializeField] private TMP_Text wrongPanelMessage;      // Optional text inside wrongPanel
 
+    public AudioSource winnerAudioClip;
+
     // NOTE: Info panels exist in your scene, but per request we do not toggle them here anymore.
     // [Header("UI: Info Panels (Toggles)")]
     // [SerializeField] private GameObject instructionsPanel; // (Removed usage)
@@ -268,6 +270,7 @@ public class PasswordStrength1 : MonoBehaviour
 
             // Mark completion BEFORE showing feedback
             gameCompleted = true;
+            winnerAudioClip.Play();
 
 
             ShowCorrectFeedbackThen(() =>

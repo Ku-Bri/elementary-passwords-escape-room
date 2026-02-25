@@ -35,7 +35,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PasswordStrength.unity
     guid: ddbd3f364b87e3349b905077ad56db9d
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/EndScreen.unity
     guid: d0c5ba52b5197ac4da2fe95796e62d7f
   m_configObjects: {}
