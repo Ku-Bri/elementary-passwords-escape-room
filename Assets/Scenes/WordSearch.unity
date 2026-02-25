@@ -11197,7 +11197,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &611102178
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29081,7 +29081,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1594157360
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29995,7 +29995,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 522820982186184151, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 85
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 569695690982854535, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -30003,7 +30003,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 569695690982854535, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 133
+      value: -9
       objectReference: {fileID: 0}
     - target: {fileID: 777853156721586265, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_text
@@ -30135,11 +30135,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2820623628355127016, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -313
+      value: -311
       objectReference: {fileID: 0}
     - target: {fileID: 2820623628355127016, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 40
+      value: 85
       objectReference: {fileID: 0}
     - target: {fileID: 2873129510152028469, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: charId
@@ -30163,7 +30163,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3108409232830311047, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -11
+      value: 133
       objectReference: {fileID: 0}
     - target: {fileID: 3523460760474495144, guid: 290b3e97e0c2af84295496a42dcb8dd1, type: 3}
       propertyPath: wordOnList
