@@ -807,7 +807,7 @@ Transform:
   m_GameObject: {fileID: 32365318}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 73.122696, y: 316.36383, z: -1.1011237}
+  m_LocalPosition: {x: 73.122696, y: 373.27, z: -1.1011237}
   m_LocalScale: {x: 2.601626, y: 2.601626, z: 2.601626}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3644,7 +3644,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -102.3995, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &214839868
 MonoBehaviour:
@@ -3666,7 +3666,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Next
+  m_text: Enter Code
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
   m_sharedMaterial: {fileID: -5392112696986978032, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
@@ -3693,7 +3693,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 44.7
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3709,7 +3709,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -13394,8 +13394,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 166.73306, y: -151.1992}
-  m_SizeDelta: {x: 230.2458, y: 185.5978}
+  m_AnchoredPosition: {x: 197.4831, y: -89.689995}
+  m_SizeDelta: {x: 403.0458, y: 204.7978}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &707977714
 MonoBehaviour:
@@ -13550,8 +13550,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "The ESCAPE CODE is revealed as you cross words off the list. \n\nStart
     reading the leftover letters in the top left corner and continue to the right
-    like a book.\n\nThe code is THREE NUMBERS so look for number words.\n\nTo close
-    the hint, click on the HINT Button. "
+    like a book.\n\nThe code is THREE NUMBERS so look for number words.\n(EXAMPLE:
+    ONE, TWO, THREE)\n\nTo close the hint, click on the HINT Button. "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
   m_sharedMaterial: {fileID: -5392112696986978032, guid: 8f4b203eae557ad449fa38073029ebff, type: 2}
@@ -13578,7 +13578,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 39.3
+  m_fontSize: 37.95
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -31503,8 +31503,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 240.57153, y: -151.19923}
-  m_SizeDelta: {x: 137.874, y: 141.5352}
+  m_AnchoredPosition: {x: 198.13646, y: -154}
+  m_SizeDelta: {x: 441.874, y: 151.1352}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1713458562
 MonoBehaviour:
@@ -32886,7 +32886,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -108.8002, y: -108.7998}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1766823102
 MonoBehaviour:
@@ -32935,10 +32935,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23
+  m_fontSize: 40.7
   m_fontSizeBase: 23
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -35434,7 +35434,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -179.1998, y: -83.1999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1928938037
 MonoBehaviour:
@@ -35483,10 +35483,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23
+  m_fontSize: 49.9
   m_fontSizeBase: 23
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0

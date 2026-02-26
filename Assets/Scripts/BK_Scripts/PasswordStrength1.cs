@@ -20,6 +20,7 @@ public class PasswordStrength1 : MonoBehaviour
     [SerializeField] private GameObject correctPanel;         // Briefly shown after a correct answer
     [SerializeField] private GameObject wrongPanel;           // Briefly shown after a wrong answer
     [SerializeField] private TMP_Text wrongPanelMessage;      // Optional text inside wrongPanel
+    [SerializeField] private GameObject completePanel;        //Show and stay on when gameCompleted == true
 
     public AudioSource winnerAudioClip;
 
@@ -85,6 +86,8 @@ public class PasswordStrength1 : MonoBehaviour
         // Covers group exists but starts hidden; Reveal Code button will show/hide it
         if (codeCoverGroup != null) codeCoverGroup.SetActive(true);
         //HideAllCovers();
+
+        completePanel.SetActive(false);
     }
 
     private void Start()
@@ -270,10 +273,11 @@ public class PasswordStrength1 : MonoBehaviour
 
             // Mark completion BEFORE showing feedback
             gameCompleted = true;
+            completePanel.SetActive(true);
             winnerAudioClip.Play();
 
 
-            ShowCorrectFeedbackThen(() =>
+            //ShowCorrectFeedbackThen(() =>
             {
                 // Stop blinking after final letter; do NOT auto-hide covers.
                 StopBlink();
@@ -289,7 +293,7 @@ public class PasswordStrength1 : MonoBehaviour
                     }
                 }
                 // Do NOT call HideAllCovers(); the player can still toggle covers via Reveal Code.
-            });
+            }//);
         }
     }
 
