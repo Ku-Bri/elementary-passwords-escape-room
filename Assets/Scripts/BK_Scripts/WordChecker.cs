@@ -26,7 +26,7 @@ public class WordChecker : MonoBehaviour
     public void IsWordComplete()
     {
         isAllTrue = true;
-        //Debug.Log("Checking if for is complete in array of length " + characters.Length);
+        Debug.Log("Checking if for is complete in array of length " + characters.Length);
         for (int i = 0;  i <= characters.Length -1; i++)
         {
             //Debug.Log("Checking for each character");
